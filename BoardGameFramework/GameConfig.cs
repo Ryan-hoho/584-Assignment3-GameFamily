@@ -33,7 +33,6 @@ public enum ComputerType
 
 public class GameConfig
 {
-    // Properties
     public GameType GameType { get; set; }
     public GomokuVariant? GomokuVariant { get; set; }
     public ReversiVariant? ReversiVariant { get; set; }
