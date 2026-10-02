@@ -6,6 +6,7 @@ public class GameSelection
     {
         GameConfig config = new GameConfig();
         config.GameType = GetGameType();
+        
         if (config.GameType == GameType.Gomoku)
         {
             config.GomokuVariant = GetGomokuVariant();

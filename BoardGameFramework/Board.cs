@@ -54,7 +54,7 @@ public class Board
         WriteLine("   " + row_div);
     }
 
-    public void PlaceStone(char s, int r, int c)
+    public void PlayMove(char s, int r, int c)
     {
         board[r-1, c-1] = s;
     }
