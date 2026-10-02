@@ -5,20 +5,19 @@ public class GameSelection
     public static GameConfig Select()
     {
         GameConfig config = new GameConfig();
-
-        GameType type = GetGameType();
-        if (type == GameType.Gomoku)
+        config.GameType = GetGameType();
+        if (config.GameType == GameType.Gomoku)
         {
             config.GomokuVariant = GetGomokuVariant();
         }
-        else if (type == GameType.Reversi)
+        else if (config.GameType == GameType.Reversi)
         {
             config.ReversiVariant = GetReversiVariant();
         }
         else
         {
             // TO-DO LOAD GAME
-
+            return config; // Placeholder delete later
         }
 
         config.GameMode = GetGameMode();
@@ -26,7 +25,6 @@ public class GameSelection
         {
             config.ComputerType = GetComputerType();
         }
-
         return config;
     }
     

@@ -1,6 +1,4 @@
-﻿using static System.Console;
-
-class BoardGameFramework
+﻿class BoardGameFramework
 {
     static void Main(string[] args)
     {
@@ -10,13 +8,12 @@ class BoardGameFramework
             // TO-DO
         }
 
-
         // Normal game selection mode
         else
         {
             GameConfig config = GameSelection.Select();
-            //Game.Start();
-            
+            Game game = new Game(config);
+            game.Start();
         }
     }
 }
