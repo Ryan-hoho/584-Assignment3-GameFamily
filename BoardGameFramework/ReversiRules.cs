@@ -68,4 +68,20 @@ public static class ReversiRules
 
         return legalMoves;
     }
+
+    public static bool HasLegalMove(
+    Board board,
+    char currentSymbol)
+    {
+        return FindLegalMoves(board, currentSymbol).Count > 0;
+    }
+
+    //Termination check: player1/2 has no more LegalMove <---> the Board is full
+    public static bool NoMovesForEitherPlayer(Board board)
+    {
+        bool xCanMove = HasLegalMove(board, 'X');
+        bool oCanMove = HasLegalMove(board, 'O');
+
+        return !xCanMove && !oCanMove;
+    }
 }
