@@ -76,12 +76,33 @@ public static class ReversiRules
         return FindLegalMoves(board, currentSymbol).Count > 0;
     }
 
-    //Termination check: player1/2 has no more LegalMove <---> the Board is full
+    // Game ends when neither X nor O has any legal move.
+    // A full board is one possible case.
     public static bool NoMovesForEitherPlayer(Board board)
     {
         bool xCanMove = HasLegalMove(board, 'X');
         bool oCanMove = HasLegalMove(board, 'O');
 
         return !xCanMove && !oCanMove;
+    }
+
+    public static int CountDisks(
+    Board board,
+    char symbol)
+    {
+        int count = 0;
+
+        for (int row = 1; row <= board.Size; row++)
+        {
+            for (int col = 1; col <= board.Size; col++)
+            {
+                if (board.GetCellInfo(row, col) == symbol)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 }
