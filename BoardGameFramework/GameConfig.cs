@@ -1,8 +1,7 @@
-public enum GameType
+public enum GameFamily
 {
     Gomoku, 
     Reversi,
-    Load
 }
 
 public enum GomokuVariant
@@ -33,7 +32,7 @@ public enum ComputerType
 
 public class GameConfig
 {
-    public GameType GameType { get; set; }
+    public GameFamily GameFamily { get; set; }
     public GomokuVariant? GomokuVariant { get; set; }
     public ReversiVariant? ReversiVariant { get; set; }
     public GameMode GameMode { get; set; }

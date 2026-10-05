@@ -64,7 +64,7 @@ public class HumanPlayer : Player
 
     private bool ValidateCharacterType(GameConfig config, char c)
     {
-        if (config.GameType == GameType.Reversi && Piece.reversiDisk.Contains(c))
+        if (config.GameFamily == GameFamily.Reversi && Piece.reversiDisk.Contains(c))
         {
             return true;
         }
@@ -95,7 +95,7 @@ public class DumbAI : Player
     {
         Random rnd = new Random();
         char c;
-        if (config.GameType == GameType.Reversi)
+        if (config.GameFamily == GameFamily.Reversi)
         {
             c = Piece.reversiDisk[0];
         }

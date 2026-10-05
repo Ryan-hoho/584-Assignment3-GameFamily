@@ -4,7 +4,7 @@ public class Game
 {
     // Properties 
     private GameConfig config;
-    public int Turn { get; private set; }
+    public int turnCount { get; private set; }
     public Board board { get; private set; }
     public Player p1 { get; private set; }
     public Player p2 { get; private set; }
@@ -16,7 +16,7 @@ public class Game
         board = CreateBoard();
         p1 = new HumanPlayer();
         p2 = CreatePlayer2();
-        Turn = 1;
+        turnCount = 1;
     }
 
     public void Start()
@@ -33,15 +33,15 @@ public class Game
         while(hasWinner == false)
         {
             // Track current player
-            if (Turn % 2 != 0)
+            if (turnCount % 2 != 0)
             {
                 currentP = p1;
-                WriteLine($"Turn {Turn}: Player 1");
+                WriteLine($"Turn {turnCount}: Player 1");
             }
             else
             {
                 currentP = p2;
-                WriteLine($"Turn {Turn}: Player 2");
+                WriteLine($"Turn {turnCount}: Player 2");
             }
 
             // Validate input syntax and check if move is legal
@@ -81,7 +81,7 @@ public class Game
             board.DisplayBoard();
 
             // Check for winner
-            if (config.GameType == GameType.Gomoku)
+            if (config.GameFamily == GameFamily.Gomoku)
             {
                 if (CheckForGomokuWinner(rowVal, colVal))
                 {
@@ -95,7 +95,7 @@ public class Game
             }
 
             // Increment turn after each loop
-            Turn++;
+            turnCount++;
         }
     }
 
@@ -204,7 +204,7 @@ public class Game
 
     private Board CreateBoard()
     {
-        if (config.GameType == GameType.Gomoku)
+        if (config.GameFamily == GameFamily.Gomoku)
         {
             return new Board(10);
         }
@@ -236,13 +236,13 @@ public class Game
         WriteLine("GAME START");
 
         // Display Game Variant
-        if (config.GameType == GameType.Gomoku)
+        if (config.GameFamily == GameFamily.Gomoku)
         {
-            WriteLine($"Game Variant: {config.GameType} {config.GomokuVariant}");
+            WriteLine($"Game Variant: {config.GameFamily} {config.GomokuVariant}");
         }
         else
         {
-            WriteLine($"Game Variant: {config.ReversiVariant} {config.GameType}");
+            WriteLine($"Game Variant: {config.ReversiVariant} {config.GameFamily}");
         }
 
         // Display Game Mode
