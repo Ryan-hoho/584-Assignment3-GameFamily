@@ -21,7 +21,7 @@ public class Board
     }
 
     //Print current state of board
-    public void DisplayBoard()
+    public void GetBoard()
     {
         // Print columns number
         Write("     "); 

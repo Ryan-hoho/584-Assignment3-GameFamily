@@ -12,7 +12,17 @@
         else
         {
             GameConfig config = GameSelection.Select();
-            Game game = new Game(config);
+            Game game;
+
+            if (config.GameFamily == GameFamily.Gomoku)
+            {
+                game = new GomokuGame(config);
+            }
+            else
+            {
+                game = new ReversiGame(config);
+            }
+
             game.Start();
         }
     }

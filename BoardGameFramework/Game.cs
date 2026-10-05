@@ -1,6 +1,6 @@
 using static System.Console;
 
-public class Game
+public abstract class Game
 {
     // Properties 
     private GameConfig config;
@@ -10,25 +10,42 @@ public class Game
     public Player p2 { get; private set; }
 
     // Constructor 
-    public Game(GameConfig config)
+    public Game(GameConfig config, Board board)
     {
         this.config = config;
-        board = CreateBoard();
+        this.board = board;
         p1 = new HumanPlayer();
         p2 = CreatePlayer2();
         turnCount = 1;
     }
 
+    private Player CreatePlayer2()
+    {
+        if (config.GameMode == GameMode.HumanVsHuman)
+        {
+            return new HumanPlayer();
+        }
+        else if (config.ComputerType == ComputerType.DumbAI)
+        {
+            return new DumbAI();
+        }
+        else
+        {
+            return new SmartAI();
+        }
+    }
+
     public void Start()
     {
-        // Initiate variables
+        // Initialise variables
         Player currentP;
-        char c;
+        char piece;
         int rowVal = 0;
         int colVal = 0;
         bool hasWinner = false;
         
         DisplayGameStart();
+        DisplayBoard();
 
         while(hasWinner == false)
         {
@@ -43,68 +60,135 @@ public class Game
                 currentP = p2;
                 WriteLine($"Turn {turnCount}: Player 2");
             }
-
-            // Validate input syntax and check if move is legal
+            
             bool validMove = false;
             while(validMove == false)
             {
-                // Get move from player and validate syntax where applicable
                 string? move = currentP.GetMove(config, board);
+                if (move == "help")
+                {
+                    // TO-DO 
+                    // Display help menu
+                    continue;
+                }
 
-                // Extract stone/disk type and coordinates for validation
-                c = move[0];
+                // Extract piece type and coordinates for validation
+                piece = move[0];
                 string[] coor = move.Substring(1).Split(':');
                 int.TryParse(coor[0], out rowVal);
                 int.TryParse(coor[1], out colVal);
 
-                if (config.GomokuVariant != GomokuVariant.Plus)
+                // Check that piece type and move is valid
+                if (ValidatePieceType(piece))
                 {
-                    if (currentP == p1)
+                    if (ValidateMove(piece, rowVal, colVal))
                     {
-                        board.PlayMove(Piece.ordinary[0], rowVal, colVal);
+                        PlayMove(currentP, piece, rowVal, colVal);
+                        validMove = true;
                     }
-                    else
-                    {
-                        board.PlayMove(Piece.ordinary[1], rowVal, colVal);
-                    }
-                    validMove = true;
-                }
-                // Separate validation logic for Gomoku Plus because of special stones rule
-                else
-                {
-                    // TO-DO
-                    // ValidateMove();
                 }
             }
 
-            // Print updated board
-            board.DisplayBoard();
+            DisplayBoard();
 
-            // Check for winner
-            if (config.GameFamily == GameFamily.Gomoku)
+            if (CheckForWinner(rowVal, colVal))
             {
-                if (CheckForGomokuWinner(rowVal, colVal))
-                {
-                    WriteLine("***GAME OVER***");
-                    if (currentP == p1)
-                        WriteLine($"Player 1 Wins!");
-                    else
-                        WriteLine($"Player 2 Wins!");
-                    hasWinner = true;
-                }
+                WriteLine("***GAME OVER***");
+                if (currentP == p1)
+                    WriteLine($"Player 1 Wins!");
+                else
+                    WriteLine($"Player 2 Wins!");
+                hasWinner = true;
             }
 
-            // Increment turn after each loop
             turnCount++;
         }
     }
 
-    /*private bool ValidateMove(Player p, char l, int r, int c)
+    private void DisplayGameStart()
     {
-        // TO-DO
-    }*/
+        WriteLine("-----------------------");
+        WriteLine("GAME START");
 
-    private bool CheckForGomokuWinner(int r, int c)
+        // Display Game Variant
+        if (config.GameFamily == GameFamily.Gomoku)
+        {
+            WriteLine($"Game Variant: {config.GameFamily} {config.GomokuVariant}");
+        }
+        else
+        {
+            WriteLine($"Game Variant: {config.ReversiVariant} {config.GameFamily}");
+        }
+
+        // Display Game Mode
+        if (config.GameMode == GameMode.HumanVsHuman)
+        {
+            WriteLine($"Game Mode: Human Vs Human");
+        }
+        else
+        {
+            WriteLine($"Game Mode: Human Vs {config.ComputerType}");
+        }
+    }
+
+    protected virtual void DisplayBoard()
+    {
+        board.GetBoard();
+    }
+
+    protected abstract bool ValidatePieceType(char c);
+
+    protected virtual bool ValidateMove(char c, int row, int col)
+    {
+        if (board.GetCellInfo(row, col) == ' ')
+        {
+            return true;
+        }
+        else
+        {
+            WriteLine("Invalid move. Cannot play move on an occupied cell.");
+            return false;
+        }
+    }
+
+    protected virtual void PlayMove(Player player, char piece, int row, int col)
+    {
+        if (player == p1)
+        {
+            board.PlayMove('X', row, col);
+        }
+        else
+        {
+            board.PlayMove('O', row, col);
+        }
+    }
+
+    public abstract bool CheckForWinner(int r, int c);
+}
+
+
+public class GomokuGame : Game
+{
+    public GomokuGame(GameConfig config) : base(config, new Board(10))
+    {
+    }
+
+    //private readonly GomokuRules rule = new GomokuRules();
+
+    protected override bool ValidatePieceType(char c)
+    {
+        if (c == 'O')
+        {
+            return true;
+        }
+        else
+        {
+            WriteLine("Invalid Stone type. Only Ordinary stones [O] allowed.");
+            return false;
+        }
+    }
+
+    public override bool CheckForWinner(int r, int c)
     {
         (int dr, int dc)[] directions = {(1,0), (0,1), (1,1), (1,-1)};
         if (board.GetCellInfo(r,c) == Piece.ordinary[0] || board.GetCellInfo(r,c) == Piece.gomokuHeavy[0])
@@ -201,63 +285,64 @@ public class Game
         }
     }
 
+}
 
-    private Board CreateBoard()
+
+public class GomokuPlus : GomokuGame
+{
+    public GomokuPlus(GameConfig config) : base(config)
     {
-        if (config.GameFamily == GameFamily.Gomoku)
+    }
+    
+    protected override bool ValidatePieceType(char c)
+    {
+        if (c == 'O' || c == 'H' || c == 'E')
         {
-            return new Board(10);
+            return true;
         }
         else
         {
-            return new Board(8);
+            WriteLine("Invalid Stone type. Select Ordinary [O], Heavy [H], or Eraser [E] stones.");
+            return false;
         }
     }
 
-    private Player CreatePlayer2()
+    protected override bool ValidateMove(char c, int row, int col)
     {
-        if (config.GameMode == GameMode.HumanVsHuman)
+        // TO-DO
+        throw new NotFiniteNumberException("GomokuPlus ValidateMove is not yet implemented.");
+    }
+
+    protected override void PlayMove(Player player, char piece, int row, int col)
+    {
+        // TO-DO
+        throw new NotImplementedException("GomokuPlus PlayMove is not yet implemented.");
+    }
+}
+
+
+public class ReversiGame : Game
+{
+    public ReversiGame(GameConfig config) : base(config, new Board(8))
+    {
+    }
+
+    protected override bool ValidatePieceType(char c)
+    {
+        if (c == 'P')
         {
-            return new HumanPlayer();
-        }
-        else if (config.ComputerType == ComputerType.DumbAI)
-        {
-            return new DumbAI();
+            return true;
         }
         else
         {
-            return new SmartAI();
+            WriteLine("Invalid Disk type. Use [P] for disk.");
+            return false;
         }
     }
 
-    private void DisplayGameStart()
+    public override bool CheckForWinner(int r, int c)
     {
-        WriteLine("-----------------------");
-        WriteLine("GAME START");
-
-        // Display Game Variant
-        if (config.GameFamily == GameFamily.Gomoku)
-        {
-            WriteLine($"Game Variant: {config.GameFamily} {config.GomokuVariant}");
-        }
-        else
-        {
-            WriteLine($"Game Variant: {config.ReversiVariant} {config.GameFamily}");
-        }
-
-        // Display Game Mode
-        if (config.GameMode == GameMode.HumanVsHuman)
-        {
-            WriteLine($"Game Mode: {config.GameMode}");
-        }
-        else
-        {
-            WriteLine($"Game Mode: HumanVs{config.ComputerType}");
-        }
-
-        // if (config.GomokuVariant == GomokuVariant.GomokuFog)
-            // display Fog Board
-        // else display Board
-        board.DisplayBoard();
+        // TO-DO
+        throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
     }
 }
