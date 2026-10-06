@@ -8,7 +8,7 @@
             // TO-DO
         }
 
-        // Normal game selection mode
+        // Game Selection Mode
         else
         {
             GameConfig config = GameSelection.Select();
