@@ -155,11 +155,11 @@ public abstract class Game
     {
         if (player == p1)
         {
-            board.PlayMove('X', row, col);
+            board.PlayMove(Piece.ordinary[0], row, col);
         }
         else
         {
-            board.PlayMove('O', row, col);
+            board.PlayMove(Piece.ordinary[1], row, col);
         }
     }
 
@@ -172,8 +172,6 @@ public class GomokuGame : Game
     public GomokuGame(GameConfig config) : base(config, new Board(10))
     {
     }
-
-    //private readonly GomokuRules rule = new GomokuRules();
 
     protected override bool ValidatePieceType(char c)
     {
@@ -320,6 +318,19 @@ public class GomokuPlus : GomokuGame
     }
 }
 
+public class GomokuFog : GomokuGame
+{
+    public GomokuFog(GameConfig config) : base(config)
+    {
+    }
+
+    protected override void DisplayBoard()
+    {
+        // TO-DO
+        throw new NotImplementedException("This feature is not yet implemented.");
+    }
+}
+
 
 public class ReversiGame : Game
 {
@@ -344,5 +355,21 @@ public class ReversiGame : Game
     {
         // TO-DO
         throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
+    }
+}
+
+
+public class AntiReversi : ReversiGame
+{
+    public AntiReversi(GameConfig config) : base(config)
+    {
+    }
+}
+
+
+public class CornerReversi : ReversiGame
+{
+    public CornerReversi(GameConfig config) : base(config)
+    {
     }
 }
