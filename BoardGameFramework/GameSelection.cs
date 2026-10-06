@@ -4,21 +4,24 @@ public class GameSelection
 {
     public static GameConfig Select()
     {
-        GameConfig config = new GameConfig();
-        config.GameType = GetGameType();
+        int choice = GetGameChoice();
+        if (choice == 3)
+        {
+            // TO-DO: Load saved game
+            // Temporary stops until loading is implemented
+            throw new NotImplementedException("Loading is not yet implemented.");
+        }
         
-        if (config.GameType == GameType.Gomoku)
+        GameConfig config = new GameConfig();
+        config.GameFamily = (GameFamily)(choice - 1);
+        
+        if (config.GameFamily == GameFamily.Gomoku)
         {
             config.GomokuVariant = GetGomokuVariant();
         }
-        else if (config.GameType == GameType.Reversi)
+        else if (config.GameFamily == GameFamily.Reversi)
         {
             config.ReversiVariant = GetReversiVariant();
-        }
-        else
-        {
-            // TO-DO LOAD GAME
-            return config; // Placeholder delete later
         }
 
         config.GameMode = GetGameMode();
@@ -36,7 +39,7 @@ public class GameSelection
         {
             Write(message);
             string? str = ReadLine();
-            if (int.TryParse(str, out int input) && input >= 1 && input < optionCount + 1)
+            if (int.TryParse(str, out int input) && input >= 1 && input <= optionCount)
             {
                 return input;
             }
@@ -44,15 +47,14 @@ public class GameSelection
         }
     }   
 
-    static GameType GetGameType()
+    static int GetGameChoice()
     {
         WriteLine("-----------------------");
         WriteLine("1. New Gomoku Game");
         WriteLine("2. New Reversi Game");
         WriteLine("3. Load Game");
 
-        int input = PromptForInput("Select Game: ", 3);
-        return (GameType)(input-1);
+        return PromptForInput("Select Game: ", 3);
     }
 
     static GomokuVariant GetGomokuVariant()

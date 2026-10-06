@@ -1,11 +1,8 @@
 using static System.Console;
 
-public class Player
+public abstract class Player
 {
-    public virtual string GetMove(GameConfig config, Board board)
-    {
-        return "";
-    }
+    public abstract string GetMove(GameConfig config, Board board);
 }
 
 public class HumanPlayer : Player
@@ -13,8 +10,7 @@ public class HumanPlayer : Player
     public override string GetMove(GameConfig config, Board board)
     {
         string? input = string.Empty;
-        bool validInput = false;
-        while (validInput == false)
+        while (true)
         {
             Write("Enter your move or 'help' to access Help Menu: ");
             input = ReadLine() ?? string.Empty;
@@ -24,7 +20,7 @@ public class HumanPlayer : Player
             }
             else if (input == "help")
             {
-                GetHelpMenu(config);
+                return input;
             }
             else
             {
@@ -33,11 +29,7 @@ public class HumanPlayer : Player
                 string[] coor = input.Substring(1).Split(':');
 
                 // Validate input syntax
-                if (ValidateCharacterType(config, c) == false)
-                {
-                    WriteLine("Invalid input. Please select a valid stone/disk type. Syntax: Stone[Row]:[Col]");
-                }
-                else if (coor.Length != 2)
+                if (coor.Length != 2)
                 {
                     WriteLine("Invalid input. Syntax: Stone[Row]:[Col]");
                 }
@@ -49,43 +41,12 @@ public class HumanPlayer : Player
                 {
                     WriteLine("Invalid move. Coordinates are off-grid.");
                 }
-                else if (board.GetCellInfo(rowVal, colVal) != ' ')
-                {
-                    WriteLine("Invalid move. Cannot play on an occupied cell.");
-                }
                 else
                 {
-                    validInput = true;
+                    return input;
                 }
             }
         }
-        return input;
-    }
-
-    private bool ValidateCharacterType(GameConfig config, char c)
-    {
-        if (config.GameType == GameType.Reversi && Piece.reversiDisk.Contains(c))
-        {
-            return true;
-        }
-        else if ((config.GomokuVariant == GomokuVariant.Standard ||
-                config.GomokuVariant == GomokuVariant.Fog) && c == Piece.gomokuStone[0])
-        {
-            return true;
-        }
-        else if (config.GomokuVariant == GomokuVariant.Plus && Piece.gomokuStone.Contains(c))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    private void GetHelpMenu(GameConfig config)
-    {
-        // TO-DO
     }
 }
 
@@ -95,7 +56,7 @@ public class DumbAI : Player
     {
         Random rnd = new Random();
         char c;
-        if (config.GameType == GameType.Reversi)
+        if (config.GameFamily == GameFamily.Reversi)
         {
             c = Piece.reversiDisk[0];
         }
@@ -116,5 +77,8 @@ public class DumbAI : Player
 
 public class SmartAI : Player
 {
-    // TO-DO
+    public override string GetMove(GameConfig config, Board board)
+    {
+        throw new NotImplementedException("Smart AI is not implemented yet.");
+    }
 }

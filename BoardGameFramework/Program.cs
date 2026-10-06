@@ -8,11 +8,11 @@
             // TO-DO
         }
 
-        // Normal game selection mode
+        // Game Selection Mode
         else
         {
             GameConfig config = GameSelection.Select();
-            Game game = new Game(config);
+            Game game = GameFactory.CreateGame(config);
             game.Start();
         }
     }
