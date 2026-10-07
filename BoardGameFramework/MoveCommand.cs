@@ -56,12 +56,15 @@ public class GomokuMoveCommand : MoveCommand
 }
 
 
-public class ReversiMoveCommand : MoveCommand  //待修正
+public class ReversiMoveCommand : MoveCommand
 {
     private readonly Board board;
     private readonly char symbol;
     private readonly int row;
     private readonly int column;
+
+    private List<(int row, int col)> flippedDisks =
+        new List<(int row, int col)>();
 
     public ReversiMoveCommand(
         Board board,
@@ -77,11 +80,41 @@ public class ReversiMoveCommand : MoveCommand  //待修正
 
     public override void Execute()
     {
-        board.PlayMove(symbol, row, column);
+        flippedDisks =
+            FlankingRules.FindFlips(
+                board,
+                row,
+                column,
+                symbol);
+
+        if (flippedDisks.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "Cannot execute an invalid Reversi move.");
+        }
+
+        ReversiRules.PlaceDisk(
+            board,
+            row,
+            column,
+            symbol);
     }
 
     public override void Undo()
     {
+        // Remove the disk that was originally placed.
         board.RemovePiece(row, column);
+
+        // Restore all disks that were flipped by this move.
+        char opponentSymbol =
+            (symbol == 'X') ? 'O' : 'X';
+
+        foreach ((int flipRow, int flipCol) in flippedDisks)
+        {
+            board.PlayMove(
+                opponentSymbol,
+                flipRow,
+                flipCol);
+        }
     }
 }
