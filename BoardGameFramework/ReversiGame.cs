@@ -4,6 +4,7 @@ public class ReversiGame : Game
 {
     public ReversiGame(GameConfig config) : base(config, new Board(8))
     {
+        ReversiRules.SetUpInitialBoard(board);
     }
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
@@ -24,7 +25,31 @@ public class ReversiGame : Game
             return false;
         }
     }
+    protected override bool ValidateMove(
+        char c,
+        int row,
+        int col)
+    {
+        char currentSymbol =
+            (currentPlayer == p1) ? 'X' : 'O';
 
+        List<(int row, int col)> flips =
+            FlankingRules.FindFlips(
+                board,
+                row,
+                col,
+                currentSymbol);
+
+        if (flips.Count > 0)
+        {
+            return true;
+        }
+
+        WriteLine(
+            "Invalid move. A Reversi move must flank at least one opponent disk.");
+
+        return false;
+    }
     public override bool CheckForWinner(int r, int c)
     {
         // TO-DO
