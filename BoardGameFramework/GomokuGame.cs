@@ -2,10 +2,16 @@ using static System.Console;
 
 public class GomokuGame : Game
 {
+
     public GomokuGame(GameConfig config) : base(config, new Board(10))
     {
     }
-
+    protected override void PlayMove(Player player, char piece, int row, int col)
+    {
+        char symbol = (player == p1) ? Piece.ordinary[0] : Piece.ordinary[1];
+        MoveCommand command = new GomokuMoveCommand(board, symbol, row, col);
+        history.Execute(command);
+    }
     protected override bool ValidatePieceType(char c)
     {
         if (c == 'O')
@@ -115,6 +121,16 @@ public class GomokuGame : Game
             return false;
         }
     }
+
+    protected override string GetRulesText()
+    {
+        return
+            "Gomoku Rules:\n" +
+            "- Players take turns placing stones.\n" +
+            "- The first player to connect five stones in a row wins.\n" +
+            "- Move format: O[Row]:[Column].";
+    }
+
 
 }
 
