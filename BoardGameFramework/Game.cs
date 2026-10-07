@@ -4,10 +4,16 @@ public abstract class Game
 {
     // Properties 
     private GameConfig config;
+    private CommandParser parser;
+    protected CommandHistory history;
+    
     public int turnCount { get; private set; }
     public Board board { get; private set; }
     public Player p1 { get; private set; }
     public Player p2 { get; private set; }
+    
+    // player record
+    public Player currentPlayer { get; private set; }
 
     // Constructor 
     public Game(GameConfig config, Board board)
@@ -17,6 +23,10 @@ public abstract class Game
         p1 = new HumanPlayer();
         p2 = CreatePlayer2();
         turnCount = 1;
+        currentPlayer = p1;
+
+        parser = new CommandParser();
+        history = new CommandHistory();
     }
 
     private Player CreatePlayer2()
@@ -38,7 +48,6 @@ public abstract class Game
     public void Start()
     {
         // Initialise variables
-        Player currentP;
         char piece;
         int rowVal = 0;
         int colVal = 0;
@@ -49,43 +58,126 @@ public abstract class Game
 
         while(hasWinner == false)
         {
-            // Track current player
-            if (turnCount % 2 != 0)
+            // Track current player P1+P2 = 1 turn for history
+            if (currentPlayer == p1)
             {
-                currentP = p1;
                 WriteLine($"Turn {turnCount}: Player 1");
             }
             else
             {
-                currentP = p2;
                 WriteLine($"Turn {turnCount}: Player 2");
             }
             
             bool validMove = false;
             while(validMove == false)
             {
-                string? move = currentP.GetMove(config, board);
-                if (move == "help")
-                {
-                    // TO-DO 
-                    // Display help menu
-                    continue;
-                }
-
-                // Extract piece type and coordinates for validation
-                piece = move[0];
-                string[] coor = move.Substring(1).Split(':');
-                int.TryParse(coor[0], out rowVal);
-                int.TryParse(coor[1], out colVal);
-
-                // Check that piece type and move is valid
-                if (ValidatePieceType(piece))
-                {
-                    if (ValidateMove(piece, rowVal, colVal))
+                string move = currentPlayer.GetMove(config, board);
+                try{
+                    ParsedCommand parsed = parser.Parse(move);
+                    if (parsed.Type == CommandType.Help)
                     {
-                        PlayMove(currentP, piece, rowVal, colVal);
-                        validMove = true;
+                        DisplayHelp();
+                        continue;
                     }
+                    
+                    if (parsed.Type == CommandType.Undo)
+                    {
+                        bool undoSuccess = history.Undo();
+                        if (!undoSuccess)
+                        {
+                            WriteLine("Nothing to undo. A full turn (both players) is required before undo is available.");
+                        }
+                        else
+                        {
+                            // Undo one full turn (two moves).
+                            // Keep the current player unchanged.
+                            turnCount--;
+                            WriteLine("Undo successful.");
+                            DisplayBoard();
+                            // Keep the active player unchanged after undo.
+                            // Display the updated turn and player.
+                            if (currentPlayer == p1)
+                            {
+                                WriteLine($"Turn {turnCount}: Player 1");
+                            }
+                            else
+                            {
+                                WriteLine($"Turn {turnCount}: Player 2");
+                            }
+                        }
+                        continue;
+                    }
+                    if (parsed.Type == CommandType.Redo)
+                    {
+                        bool redoSuccess = history.Redo();
+                        if (!redoSuccess)
+                        {
+                            WriteLine("Nothing to redo.");
+                        }
+                        else
+                        {
+                            turnCount++;
+                            WriteLine("Redo successful.");
+                            DisplayBoard();
+    
+                            if (currentPlayer == p1)
+                            {
+                                WriteLine($"Turn {turnCount}: Player 1");
+                            }
+                            else
+                            {
+                                WriteLine($"Turn {turnCount}: Player 2");
+                            }
+                        }
+                        continue;
+                    }
+                    if (parsed.Type == CommandType.Save)
+                    {
+                        WriteLine("Save is not implemented yet.");
+                        continue;
+                    }
+                    if (parsed.Type == CommandType.Load)
+                    {
+                        WriteLine("Load is not implemented yet.");
+                        continue;
+                    }
+                    if (parsed.Type == CommandType.Quit)
+                    {
+                        WriteLine("Game ended.");
+                        return;
+                    }
+                    if (parsed.Type == CommandType.Move)
+                    {
+                        piece = parsed.PieceCode!.Value;
+                        rowVal = parsed.Row!.Value;
+                        colVal = parsed.Column!.Value;
+                        // shared Board boundary validation。
+                        if (rowVal < 1 || rowVal > board.Size ||
+                            colVal < 1 || colVal > board.Size)
+                        {
+                            WriteLine("Invalid move. Coordinates are off-grid.");
+                            continue;
+                        }
+
+                        // Game / Rules for rule's validation。
+                        if (ValidatePieceType(piece))
+                        {
+                            if (ValidateMove(piece, rowVal, colVal))
+                            {
+                                PlayMove(
+                                    currentPlayer,
+                                    piece,
+                                    rowVal,
+                                    colVal
+                                );
+                                validMove = true;
+                            }
+                        }
+                    }
+                }
+                catch (InvalidCommandFormatException ex)
+                {
+                    WriteLine(ex.Message);
                 }
             }
 
@@ -94,14 +186,26 @@ public abstract class Game
             if (CheckForWinner(rowVal, colVal))
             {
                 WriteLine("***GAME OVER***");
-                if (currentP == p1)
-                    WriteLine($"Player 1 Wins!");
+                if (currentPlayer == p1)
+                   {WriteLine($"Player 1 Wins!");} 
                 else
-                    WriteLine($"Player 2 Wins!");
+                    {WriteLine($"Player 2 Wins!");}
                 hasWinner = true;
             }
 
-            turnCount++;
+            if (!hasWinner){
+                // Player 1 finished move, stay at same turn for player 2
+                if (currentPlayer == p1)
+                {
+                    currentPlayer = p2;
+                }
+                // Player 2 finished move, change player
+                else
+                {
+                    currentPlayer = p1;
+                    turnCount++;
+                }
+            }
         }
     }
 
@@ -131,11 +235,28 @@ public abstract class Game
         }
     }
 
+    protected virtual void DisplayHelp()
+    {
+        WriteLine();
+        WriteLine("=== Commands ===");
+        WriteLine("help        - Display help");
+        WriteLine("undo        - Undo the previous full turn");
+        WriteLine("redo        - Redo the previous full turn");
+        WriteLine("save        - Save the current game");
+        WriteLine("load        - Load a saved game");
+        WriteLine("quit        - Quit the game");
+        WriteLine();
+        WriteLine("=== Game Rules ===");
+        WriteLine(GetRulesText());
+    }
+
+
     protected virtual void DisplayBoard()
     {
         board.GetBoard();
     }
 
+    protected abstract string GetRulesText();
     protected abstract bool ValidatePieceType(char c);
 
     protected virtual bool ValidateMove(char c, int row, int col)
@@ -151,17 +272,11 @@ public abstract class Game
         }
     }
 
-    protected virtual void PlayMove(Player player, char piece, int row, int col)
-    {
-        if (player == p1)
-        {
-            board.PlayMove(Piece.ordinary[0], row, col);
-        }
-        else
-        {
-            board.PlayMove(Piece.ordinary[1], row, col);
-        }
-    }
 
+    protected abstract void PlayMove(Player player, char piece, int row, int col);
     public abstract bool CheckForWinner(int r, int c);
+
+
+
 }
+

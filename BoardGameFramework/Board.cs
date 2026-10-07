@@ -58,6 +58,11 @@ public class Board
     {
         board[r-1, c-1] = s;
     }
+        public void RemovePiece(int r, int c)
+    {
+        board[r - 1, c - 1] = ' ';
+    }
+
 
     public char GetCellInfo(int r, int c)
     {
