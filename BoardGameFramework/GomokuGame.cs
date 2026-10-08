@@ -128,7 +128,9 @@ public class GomokuGame : Game
             "Gomoku Rules:\n" +
             "- Players take turns placing stones.\n" +
             "- The first player to connect five stones in a row wins.\n" +
-            "- Move format: O[Row]:[Column].";
+            "\n" +
+            "MOVE FORMAT\n" +
+            "O5:5        Place an ordinary stone";
     }
 
 
@@ -165,6 +167,18 @@ public class GomokuPlus : GomokuGame
         // TO-DO
         throw new NotImplementedException("GomokuPlus PlayMove is not yet implemented.");
     }
+    protected override string GetRulesText()
+    {
+        return
+            "Gomoku Plus Rules:\n" +
+            "- Players take turns placing stones.\n" +
+            "- The first player to connect five stones in a row wins.\n" +
+            "\n" +
+            "MOVE FORMAT\n" +
+            "O5:5        Place an ordinary stone\n" +
+            "H5:5        Heavy stone\n" +
+            "E5:5        Eraser stone";
+    }
 }
 
 public class GomokuFog : GomokuGame
@@ -173,9 +187,21 @@ public class GomokuFog : GomokuGame
     {
     }
 
-    protected override void DisplayBoard()
+    //Display in consoleview, fog view is controlled  by visibility
+    public override IVisibilityStrategy GetVisibilityStrategy()
     {
-        // TO-DO
-        throw new NotImplementedException("This feature is not yet implemented.");
+        return new FogVisibility();
     }
+    protected override string GetRulesText()
+    {
+        return
+            "Gomoku Fog Rules:\n" +
+            "- Players take turns placing stones.\n" +
+            "- The first player to connect five stones in a row wins.\n" +
+            "- Parts of the board may be hidden by fog.\n" +
+            "\n" +
+            "MOVE FORMAT\n" +
+            "O5:5        Place an ordinary stone";
+    }
+
 }

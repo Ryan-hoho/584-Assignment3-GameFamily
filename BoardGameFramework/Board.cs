@@ -20,8 +20,15 @@ public class Board
         }
     }
 
-    //Print current state of board
     public void GetBoard()
+    {
+        DisplayBoard(board);
+    }
+
+    
+    // Print a provided board view.
+    // This can be used for visibility strategies such as GomokuFog.
+    public void DisplayBoard(char[,] boardToDisplay)
     {
         // Print columns number
         Write("     "); 
@@ -47,7 +54,7 @@ public class Board
                 Write(i + 1 + "  " + col_div);
             for (int j = 0; j < Size; j++)
             {
-                Write(" " + board[i,j] + " " + col_div); 
+                Write(" " + boardToDisplay[i,j] + " " + col_div); 
             }
             WriteLine();
         }
@@ -58,14 +65,18 @@ public class Board
     {
         board[r-1, c-1] = s;
     }
-        public void RemovePiece(int r, int c)
+
+    // Removes the piece at the specified position.
+    // External coordinates are 1-based, so subtract 1 when accessing the array.
+    public void RemovePiece(int r, int c)
     {
         board[r - 1, c - 1] = ' ';
     }
-
 
     public char GetCellInfo(int r, int c)
     {
         return board[r-1,c-1];
     }
+
+
 }
