@@ -20,7 +20,9 @@ public abstract class MoveCommand
     public virtual void Redo()
     {
         Execute();
-    }
+    }    
+    public abstract string ToCommandString();
+
 }
 
 public class GomokuMoveCommand : MoveCommand
@@ -50,6 +52,10 @@ public class GomokuMoveCommand : MoveCommand
     public override void Undo()
     {
         board.RemovePiece(row, column);
+    }
+    public override string ToCommandString()
+    {
+        return $"O{row}:{column}";
     }
 
 
@@ -116,5 +122,26 @@ public class ReversiMoveCommand : MoveCommand
                 flipRow,
                 flipCol);
         }
+    }
+    public override void Redo()
+
+    {
+        // Restore the placed disk.
+        board.PlayMove(symbol, row, column);
+        // Flip the same disks again.
+        foreach ((int flipRow, int flipCol) in flippedDisks)
+        {
+            board.PlayMove(
+                symbol,
+                flipRow,
+                flipCol
+            );
+        }
+    }
+
+
+    public override string ToCommandString()
+    {
+        return $"P{row}:{column}";
     }
 }

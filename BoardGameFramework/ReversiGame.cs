@@ -2,17 +2,18 @@ using static System.Console;
 
 public class ReversiGame : Game
 {
-    public ReversiGame(GameConfig config) : base(config, new Board(8))
-    {
-        ReversiRules.SetUpInitialBoard(board);
-    }
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
-        
+        // PASS 情境要特殊處理（不產生 MoveCommand，或由 parser 在更早階段攔截）
         char symbol = (player == p1) ? 'X' : 'O';
         MoveCommand command = new ReversiMoveCommand(board, symbol, row, col);
         history.Execute(command);
     }
+    public ReversiGame(GameConfig config) : base(config, new Board(8))
+    {
+        ReversiRules.SetUpInitialBoard(board); //add for initial board
+    }
+
     protected override bool ValidatePieceType(char c)
     {
         if (c == 'P')
@@ -25,37 +26,31 @@ public class ReversiGame : Game
             return false;
         }
     }
-    protected override bool ValidateMove(
-        char c,
-        int row,
-        int col)
+
+    protected override bool ValidateMove(char c, int row, int col)
     {
-        char currentSymbol =
-            (currentPlayer == p1) ? 'X' : 'O';
-
-        List<(int row, int col)> flips =
-            FlankingRules.FindFlips(
-                board,
-                row,
-                col,
-                currentSymbol);
-
-        if (flips.Count > 0)
+        char symbol = (currentPlayer == p1) ? 'X' : 'O';
+        List<(int row, int col)> legalMoves =
+            ReversiRules.FindLegalMoves(board, symbol);
+        if (legalMoves.Contains((row, col)))
         {
             return true;
         }
-
         WriteLine(
-            "Invalid move. A Reversi move must flank at least one opponent disk.");
-
+            "Invalid move. You must place a disk that flips at least one opponent disk."
+        );
         return false;
     }
+
+
+
     public override bool CheckForWinner(int r, int c)
     {
-        // TO-DO
-        throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
+        // check just for test
+        // throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
+        return false;
     }
-    protected override string GetRulesText() // just for test, need to update!!
+    protected override string GetRulesText() // for test
     {
         return
             "Reversi Rules:\n" +
@@ -64,9 +59,6 @@ public class ReversiGame : Game
             "- Flanked opponent disks are flipped.\n" +
             "- If no legal move is available, the player must pass.";
     }
-
-
-
 
 }
 
@@ -85,3 +77,4 @@ public class CornerReversi : ReversiGame
     {
     }
 }
+

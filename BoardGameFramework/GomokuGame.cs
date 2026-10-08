@@ -173,9 +173,10 @@ public class GomokuFog : GomokuGame
     {
     }
 
-    protected override void DisplayBoard()
+    //Display in consoleview, fog view is controlled  by visibility
+    public override IVisibilityStrategy GetVisibilityStrategy()
     {
-        // TO-DO
-        throw new NotImplementedException("This feature is not yet implemented.");
+        return new FogVisibility();
     }
+
 }
