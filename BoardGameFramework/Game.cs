@@ -189,8 +189,11 @@ public abstract class Game
                     {
                         try
                         {
-                            Game loadedGame =
-                                GameSelection.LoadGame();
+                            Game? loadedGame = GameSelection.LoadGame();
+                            if (loadedGame == null)
+                            {
+                                continue;   // 使用者按 0 返回，留在目前的遊戲
+                            }
                             observer.OnMessage("Game loaded successfully.");
 
                             // Return the loaded game to Program.
@@ -211,6 +214,18 @@ public abstract class Game
                     {
                         observer.OnMessage("Game ended.");
                         return null;
+                    }
+                    // -----------------------------------------
+                    // Pass (NEW)
+                    // -----------------------------------------
+                    if (parsed.Type == CommandType.Pass)
+                    {
+                        // TODO:
+                        // PASS is only valid for Reversi when the current player has no legal moves.
+                        // Reversi PASS execution and history handling will be implemented later.
+
+                        observer.OnMessage("PASS is not yet implemented.");
+                        continue;
                     }
 
                     // -----------------------------------------

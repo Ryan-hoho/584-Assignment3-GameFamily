@@ -15,15 +15,21 @@ public class ConsoleView : IGameObserver
 {
     public void OnGameStarted(Game game)
     {
-        WriteLine("-----------------------");
-        WriteLine("GAME START");
+        WriteLine();
+        WriteLine("========================================");
+        WriteLine("              GAME START");
+        WriteLine("========================================");
+        // WriteLine("Type 'help' to view commands and rules.");有介紹的功能嗎？
+        // WriteLine();
     }
     public void OnTurnChanged(Game game)
     {
-        int playerNumber =
-            game.currentPlayer == game.p1 ? 1 : 2;
-        WriteLine(
-            $"Turn {game.turnCount}: Player {playerNumber}");
+        int playerNumber = game.currentPlayer == game.p1 ? 1 : 2;
+        
+        WriteLine();
+        WriteLine("----------------------------------------");
+        WriteLine($"Turn {game.turnCount} | Player {playerNumber}");
+        WriteLine("----------------------------------------");
     }
     public void OnBoardChanged(Game game)
     {
@@ -48,26 +54,36 @@ public class ConsoleView : IGameObserver
 
     public void OnGameOver(Game game, int winnerNumber)
     {
-        WriteLine("====== GAME OVER ======");
-        WriteLine($"Player {winnerNumber} Wins!");
+        WriteLine();
+        WriteLine("========================================");
+        WriteLine("               GAME OVER");
+        WriteLine("========================================");
+        WriteLine($"Player {winnerNumber} wins!");
+        WriteLine("========================================");
     }
 
     public void OnHelpRequested(string rulesText)
     {
         WriteLine();
-        WriteLine("====== Commands ======");
-        WriteLine("help        - Display help"
-        );
-        WriteLine("undo        - Undo the previous full turn");
-        WriteLine("redo        - Redo the previous full turn");
-        WriteLine("save        - Save the current game");
-        WriteLine("load        - Load a saved game");
-        WriteLine("quit        - Quit the game");
-        WriteLine("pass        - Pass when no legal Reversi move exists");
+        WriteLine("========================================");
+        WriteLine("                  HELP");
+        WriteLine("========================================");
         WriteLine();
-        WriteLine("=== Game Rules ===");
+        WriteLine("GAME COMMANDS");
+        WriteLine("----------------------------------------");
+        WriteLine("help        Show commands and rules");
+        WriteLine("undo        Undo the previous full turn");
+        WriteLine("redo        Redo the previous full turn");
+        WriteLine("save        Save the current game");
+        WriteLine("load        Load a saved game");
+        WriteLine("quit        Quit the game");
+        WriteLine("pass        Pass when no legal Reversi move exists");
+        WriteLine();
+        WriteLine("GAME RULES");
+        WriteLine("----------------------------------------");
         WriteLine(rulesText);
-
+        WriteLine("========================================");
+        WriteLine();
     }
 
 }

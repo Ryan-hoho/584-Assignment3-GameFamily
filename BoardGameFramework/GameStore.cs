@@ -30,16 +30,14 @@ public class SaveData
 
         if (!Enum.TryParse(GameFamily, out GameFamily family))
         {
-            throw new SaveFileDamagedException(
-                $"Invalid game family: {GameFamily}");
+            throw new SaveFileDamagedException($"Invalid game family: {GameFamily}");
         }
 
         config.GameFamily = family;
 
         if (!Enum.TryParse(GameMode, out GameMode mode))
         {
-            throw new SaveFileDamagedException(
-                $"Invalid game mode: {GameMode}");
+            throw new SaveFileDamagedException($"Invalid game mode: {GameMode}");
         }
 
         config.GameMode = mode;
@@ -48,8 +46,7 @@ public class SaveData
         {
             if (!Enum.TryParse(Variant, out GomokuVariant variant))
             {
-                throw new SaveFileDamagedException(
-                    $"Invalid Gomoku variant: {Variant}");
+                throw new SaveFileDamagedException($"Invalid Gomoku variant: {Variant}");
             }
 
             config.GomokuVariant = variant;
@@ -313,7 +310,6 @@ public class GameStore
             data.ComputerType = "";
         }
 
-        data.TurnCount = game.turnCount;
         // Current game state
         data.TurnCount = game.turnCount;
         data.CurrentPlayerNumber =

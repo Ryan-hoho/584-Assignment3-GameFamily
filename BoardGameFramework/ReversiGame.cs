@@ -50,14 +50,18 @@ public class ReversiGame : Game
         // throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
         return false;
     }
-    protected override string GetRulesText() // for test
+    protected override string GetRulesText()
     {
         return
             "Reversi Rules:\n" +
             "- Players take turns placing disks.\n" +
             "- A valid move must flank at least one opponent disk.\n" +
             "- Flanked opponent disks are flipped.\n" +
-            "- If no legal move is available, the player must pass.";
+            "- If no legal move is available, the player must pass.\n" +
+            "\n" +
+            "MOVE FORMAT\n" +
+            "P3:4        Place a disk\n" +
+            "PASS        Pass when no legal move exists";
     }
 
 }
@@ -68,6 +72,18 @@ public class AntiReversi : ReversiGame
     public AntiReversi(GameConfig config) : base(config)
     {
     }
+    protected override string GetRulesText()
+    {
+        return
+            "Anti-Reversi Rules:\n" +
+            "- Standard Reversi movement and flipping rules apply.\n" +
+            "- The player with fewer disks wins.\n" +
+            "- Equal disk counts result in a draw.\n" +
+            "\n" +
+            "MOVE FORMAT\n" +
+            "P3:4        Place a disk\n" +
+            "PASS        Pass when no legal move exists";
+    }
 }
 
 
@@ -75,6 +91,19 @@ public class CornerReversi : ReversiGame
 {
     public CornerReversi(GameConfig config) : base(config)
     {
+    }
+    protected override string GetRulesText()
+    {
+        return
+            "Corner Reversi Rules:\n" +
+            "- Standard Reversi movement and flipping rules apply.\n" +
+            "- Controlling 3 of the 4 corners results in an immediate win.\n" +
+            "- Otherwise, the player with more disks wins at normal game end.\n" +
+            "- Equal disk counts result in a draw.\n" +
+            "\n" +
+            "MOVE FORMAT\n" +
+            "P3:4        Place a disk\n" +
+            "PASS        Pass when no legal move exists";
     }
 }
 
