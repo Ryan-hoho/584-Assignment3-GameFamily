@@ -4,175 +4,186 @@ public class GameSelection
 {
     public static Game? SelectGame()
     {
-        while(true){
-            int choice = GetGameChoice();
-            
-            if (choice == 0) return null;  // Exit
-            // Load an existing saved game.
+        int choice;
+        
+        while(true)
+        {
+            // Prompt to select a Game Family or Load saved game
+            choice = GetGameChoice();
+
+            // If choose to load saved game
             if (choice == 3)
             {
                 Game? loaded = LoadGame();
                 if (loaded == null) continue;  // LoadGame 內按 0 回主選單
                 return loaded;
+
+                // TBD: Do we want the program to reprompt Menu Selection when there is no game to load? 
             }
+            break;
+        }
 
-            GameFamily selectedFamily =(GameFamily)(choice - 1);
+        // If select a Game Family
+        GameConfig config = new GameConfig();
+        config.GameFamily = (GameFamily)(choice - 1);
 
-            // =========================================
-            // Variant Menu
-            // =========================================
-            while (true)
+        // Prompt to select a Game Variant
+        if (config.GameFamily == GameFamily.Gomoku)
+        {
+            config.GomokuVariant = GetGomokuVariant();
+        }
+        else
+        {
+            config.ReversiVariant = GetReversiVariant();
+        }
+
+        // Prompt to select a Game Mode and Computer Type if choosing to verse a Computer
+        config.GameMode = GetGameMode(); 
+        if (config.GameMode == GameMode.HumanVsComputer)
+        {
+            config.ComputerType = GetComputerType();
+        }
+
+        return GameFactory.CreateGame(config);
+
+        /*
+        // =========================================
+        // Variant Menu
+        // =========================================
+        int variant;
+        if (selectedFamily == GameFamily.Gomoku)
+        {
+            variant = GetGomokuVariant();
+        }
+        else
+        {
+            variant = GetReversiVariant();
+        }
+        // =========================================
+        // Mode Menu
+        // =========================================
+
+            int mode = GetGameMode();
+
+            // Human vs Human
+            if ((GameMode)(mode - 1) == GameMode.HumanVsHuman)
             {
-                int variant;
+                GameConfig config = new GameConfig();
+                config.GameFamily = selectedFamily;
+                config.GameMode = GameMode.HumanVsHuman;
                 if (selectedFamily == GameFamily.Gomoku)
                 {
-                    variant = GetGomokuVariant();
+                    config.GomokuVariant =(GomokuVariant)(variant - 1);
                 }
                 else
                 {
-                    variant = GetReversiVariant();
+                    config.ReversiVariant =(ReversiVariant)(variant - 1);
                 }
-                // Back to Main Menu
-                if (variant == 0)
-                {
-                    break;
-                }
-                // =========================================
-                // Mode Menu
-                // =========================================
-                while (true)
-                {
-                    int mode = GetGameMode();
-                    // Back to Variant Menu
-                    if (mode == 0)
-                    {
-                        break;
-                    }
-                    // Human vs Human
-                    if ((GameMode)(mode - 1) == GameMode.HumanVsHuman)
-                    {
-                        GameConfig config = new GameConfig();
-                        config.GameFamily = selectedFamily;
-                        config.GameMode = GameMode.HumanVsHuman;
-                        if (selectedFamily == GameFamily.Gomoku)
-                        {
-                            config.GomokuVariant =(GomokuVariant)(variant - 1);
-                        }
-                        else
-                        {
-                            config.ReversiVariant =(ReversiVariant)(variant - 1);
-                        }
-                        return GameFactory.CreateGame(config);
-                    }
-
-                    // =========================================
-                    // Computer Type Menu
-                    // =========================================
-                    while (true)
-                    {
-                        int ai = GetComputerType();
-                        // Back to Mode Menu
-                        if (ai == 0){ break;}
-
-                        GameConfig config = new GameConfig();
-                        config.GameFamily = selectedFamily;
-                        config.GameMode = GameMode.HumanVsComputer;
-                        config.ComputerType =(ComputerType)(ai - 1);
-
-                        if (selectedFamily == GameFamily.Gomoku)
-                        {
-                            config.GomokuVariant =(GomokuVariant)(variant - 1);
-                        }
-                        else
-                        {
-                            config.ReversiVariant =(ReversiVariant)(variant - 1);
-                        }
-                        return GameFactory.CreateGame(config);
-                    }
-                }
+                return GameFactory.CreateGame(config);
             }
-        }
+
+            // =========================================
+            // Computer Type Menu
+            // =========================================
+
+                int ai = GetComputerType();
+
+                GameConfig config = new GameConfig();
+                config.GameFamily = selectedFamily;
+                config.GameMode = GameMode.HumanVsComputer;
+                config.ComputerType =(ComputerType)(ai - 1);
+
+                if (selectedFamily == GameFamily.Gomoku)
+                {
+                    config.GomokuVariant =(GomokuVariant)(variant - 1);
+                }
+                else
+                {
+                    config.ReversiVariant =(ReversiVariant)(variant - 1);
+                }
+                return GameFactory.CreateGame(config);
+            */
     }
         
-        static int PromptForInput(string message, int optionCount)
+    static int PromptForInput(string message, int optionCount, int minOption = 1)
+    {
+        // Prompt for user input until valid numerical input
+        while (true) 
         {
-            // Prompt for user input until valid numerical input
-            while (true) 
+            Write(message);
+            string? str = ReadLine();
+
+            if (int.TryParse(str, out int input) && input >= minOption && input <= optionCount)
             {
-                Write(message);
-                string? str = ReadLine();
-                if (int.TryParse(str, out int input) && input >= 0 && input <= optionCount)
-                {
-                    return input;
-                }
-                WriteLine($"Invalid input. Please enter a number from 0 to {optionCount}.");
+                return input;
             }
-        }   
 
-        static int GetGameChoice()
-        {
-            WriteLine("========== MAIN MENU ==========");
-            WriteLine("1. New Gomoku Game");
-            WriteLine("2. New Reversi Game");
-            WriteLine("3. Load Game");
-            WriteLine("0. Exit");
-            WriteLine("===============================");
-            WriteLine();
-
-
-            return PromptForInput("Select Game: ", 3);
+            WriteLine($"Invalid input. Please enter a number from {minOption} to {optionCount}.");
         }
+    }   
 
-    static int GetGomokuVariant()
+    static int GetGameChoice()
+    {
+        WriteLine("========== MAIN MENU ==========");
+        WriteLine("1. New Gomoku Game");
+        WriteLine("2. New Reversi Game");
+        WriteLine("3. Load Game");
+        WriteLine("===============================");
+        WriteLine();
+
+        return PromptForInput("Select Game: ", 3);
+    }
+
+    static GomokuVariant GetGomokuVariant()
     {
         WriteLine("------- GOMOKU VARIANT --------");
         WriteLine("1. Gomoku Standard");
         WriteLine("2. Gomoku Plus");
         WriteLine("3. Gomoku Fog");
-        WriteLine("0. Back");
         WriteLine("-------------------------------");
         WriteLine();
 
-        return PromptForInput("Select Gomoku variant: ", 3);
-        
+        int input = PromptForInput("Select Gomoku variant: ", 3);
+        return (GomokuVariant)(input - 1);
     }
 
-    static int GetReversiVariant()
+    static ReversiVariant GetReversiVariant()
     {
         WriteLine("------- REVERSI VARIANT -------");
         WriteLine("1. Standard Reversi");
         WriteLine("2. Anti Reversi");
         WriteLine("3. Corner Reversi");
-        WriteLine("0. Back");
         WriteLine("-------------------------------");
         WriteLine();
 
-        return PromptForInput("Select Reversi variant: ", 3);   
+        int input = PromptForInput("Select Reversi variant: ", 3);
+        return (ReversiVariant)(input - 1);   
     }
 
-    static int GetGameMode()
+    static GameMode GetGameMode()
     {
         WriteLine("---------- GAME MODE ----------");
         WriteLine("1. Human vs. Human");
         WriteLine("2. Human vs. Computer");
-        WriteLine("0. Back");
         WriteLine("-------------------------------");
         WriteLine();
 
-        return PromptForInput("Select Mode: ", 2);
+        int input = PromptForInput("Select Mode: ", 2);
+        return (GameMode)(input - 1);
     }
 
-    static int GetComputerType()
+    static ComputerType GetComputerType()
     {
         WriteLine("--------- AI DIFFICULTY --------");
         WriteLine("1. Dumb AI");
         WriteLine("2. Smart AI");
-        WriteLine("0. Back");
         WriteLine("-------------------------------");
         WriteLine();
 
-        return PromptForInput("Select Computer Level: ", 2);
+        int input = PromptForInput("Select Computer Level: ", 2);
+        return (ComputerType)(input - 1);
     }
+
     public static Game? LoadGame()
     {
         GameStore gameStore = new GameStore();
@@ -195,7 +206,7 @@ public class GameSelection
         WriteLine("=================================");
         WriteLine();
 
-        int choice = PromptForInput("Select saved game: ",saveFiles.Length);
+        int choice = PromptForInput("Select saved game: ",saveFiles.Length, minOption: 0);
         if(choice == 0)
         {
             return null;
@@ -228,6 +239,7 @@ public class GameSelection
 
         return game;
     }
+
     public static GameConfig ParseCliArgs(string[] args, out string script)
     {
         GameConfig config = new GameConfig();
