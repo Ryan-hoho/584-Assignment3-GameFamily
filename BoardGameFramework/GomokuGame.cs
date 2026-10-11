@@ -2,16 +2,19 @@ using static System.Console;
 
 public class GomokuGame : Game
 {
-
-    public GomokuGame(GameConfig config) : base(config, new Board(10))
+    public GomokuGame(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
     {
     }
+
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
         char symbol = (player == p1) ? Piece.ordinary[0] : Piece.ordinary[1];
         MoveCommand command = new GomokuMoveCommand(board, symbol, row, col);
         history.Execute(command);
     }
+
     protected override bool ValidatePieceType(char c)
     {
         if (c == 'O')
@@ -139,7 +142,9 @@ public class GomokuGame : Game
 
 public class GomokuPlus : GomokuGame
 {
-    public GomokuPlus(GameConfig config) : base(config)
+    public GomokuPlus(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
     {
     }
     
@@ -183,7 +188,9 @@ public class GomokuPlus : GomokuGame
 
 public class GomokuFog : GomokuGame
 {
-    public GomokuFog(GameConfig config) : base(config)
+    public GomokuFog(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
     {
     }
 
@@ -192,6 +199,7 @@ public class GomokuFog : GomokuGame
     {
         return new FogVisibility();
     }
+
     protected override string GetRulesText()
     {
         return
