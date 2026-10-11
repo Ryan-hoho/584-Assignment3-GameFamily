@@ -18,12 +18,12 @@ public abstract class Game
     public Player currentPlayer { get; private set; }
 
     // Constructor 
-    public Game(GameConfig config, Board board)
+    public Game(GameConfig config, Board board, Player p1, Player p2)
     {
         this.config = config;
         this.board = board;
-        p1 = new HumanPlayer();
-        p2 = CreatePlayer2();
+        this.p1 = p1;
+        this.p2 = p2;
         turnCount = 1;
         currentPlayer = p1;
 
@@ -32,22 +32,6 @@ public abstract class Game
         gameStore = new GameStore(parser);
         // ConsoleView is the current presentation observer.
         observer = new ConsoleView();
-    }
-
-    private Player CreatePlayer2()
-    {
-        if (config.GameMode == GameMode.HumanVsHuman)
-        {
-            return new HumanPlayer();
-        }
-        else if (config.ComputerType == ComputerType.DumbAI)
-        {
-            return new DumbAI();
-        }
-        else
-        {
-            return new SmartAI();
-        }
     }
 
     public Game? Start()
@@ -73,8 +57,9 @@ public abstract class Game
             // =================================================
             while (validMove == false)
             {
-                string move =
-                    currentPlayer.GetMove( config, board );
+                // Prompt for move from player
+                string move = currentPlayer.GetMove(board);
+
                 try
                 {
                     ParsedCommand parsed = parser.Parse(move);
@@ -256,8 +241,7 @@ public abstract class Game
             {
                 int winnerNumber = currentPlayer == p1 ? 1 : 2;
                 
-                // Display the final board from
-                // the winning player's perspective.
+                // Display the final board from the winning player's perspective.
                 observer.OnBoardChanged(this);
                 observer.OnGameOver(this,winnerNumber);
                 hasWinner = true;

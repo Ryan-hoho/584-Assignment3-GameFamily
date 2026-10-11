@@ -9,10 +9,17 @@ public class ReversiGame : Game
         MoveCommand command = new ReversiMoveCommand(board, symbol, row, col);
         history.Execute(command);
     }
-    public ReversiGame(GameConfig config) : base(config, new Board(8))
+
+    public ReversiGame(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
+    {
+    }
+    
+    /*public ReversiGame(GameConfig config) : base(config, new Board(8))
     {
         ReversiRules.SetUpInitialBoard(board); //add for initial board
-    }
+    }*/
 
     protected override bool ValidatePieceType(char c)
     {
@@ -50,6 +57,7 @@ public class ReversiGame : Game
         // throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
         return false;
     }
+
     protected override string GetRulesText()
     {
         return
@@ -69,9 +77,12 @@ public class ReversiGame : Game
 
 public class AntiReversi : ReversiGame
 {
-    public AntiReversi(GameConfig config) : base(config)
+    public AntiReversi(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
     {
     }
+
     protected override string GetRulesText()
     {
         return
@@ -89,9 +100,12 @@ public class AntiReversi : ReversiGame
 
 public class CornerReversi : ReversiGame
 {
-    public CornerReversi(GameConfig config) : base(config)
+    public CornerReversi(
+        GameConfig config, Board board, Player p1, Player p2) 
+        : base(config, board, p1, p2)
     {
     }
+    
     protected override string GetRulesText()
     {
         return
