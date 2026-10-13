@@ -2,21 +2,18 @@
 // │   ├── MoveCommand
 // │   ├── GomokuMoveCommand
 // │   └── ReversiMoveCommand
+// │   └── PassMoveCommand
 
 public abstract class MoveCommand
 {
-    // 執行這一步棋。
-    // 具體怎麼執行，由 GomokuMoveCommand 或
-    // ReversiMoveCommand 自己決定。
+    // 執行這一步棋。具體怎麼執行，由 GomokuMoveCommand 或ReversiMoveCommand 自己決定。
     public abstract void Execute();
 
-    // 復原這一步棋。
     // Command 必須自己知道如何恢復 Execute 前的狀態。
     public abstract void Undo();
 
     // Redo 通常就是重新執行同一個 Command。
-    // 如果未來某種 move 有特殊 redo 行為，
-    // subclass 仍然可以 override。
+    // 如果未來某種 move 有特殊 redo 行為，subclass 仍然可以 override。
     public virtual void Redo()
     {
         Execute();
@@ -57,7 +54,6 @@ public class GomokuMoveCommand : MoveCommand
     {
         return $"O{row}:{column}";
     }
-
 
 }
 
@@ -143,5 +139,15 @@ public class ReversiMoveCommand : MoveCommand
     public override string ToCommandString()
     {
         return $"P{row}:{column}";
+    }
+}
+// apply pass command into history
+public class PassCommand : MoveCommand 
+{
+    public override void Execute() { }
+    public override void Undo() { }
+    public override string ToCommandString()
+    {
+        return "PASS";
     }
 }

@@ -209,11 +209,17 @@ public abstract class Game
                     // -----------------------------------------
                     if (parsed.Type == CommandType.Pass)
                     {
-                        // TODO:
-                        // PASS is only valid for Reversi when the current player has no legal moves.
-                        // Reversi PASS execution and history handling will be implemented later.
-
-                        observer.OnMessage("PASS is not yet implemented.");
+                        if (TryPass())
+                        {
+                            validMove = true;
+                        }
+                        else
+                        {
+                            observer.OnMessage(
+                                this is ReversiGame
+                                    ? "PASS is not allowed. Legal moves are available."
+                                    : "PASS is only available in Reversi.");
+                        }
                         continue;
                     }
 
@@ -292,6 +298,16 @@ public abstract class Game
 
     // Family-specific winner evaluation.
     public abstract GameResult CheckForWinner(int r, int c);
+  
+    public abstract bool CheckForWinner(
+        int r,
+        int c
+    );
+    public virtual bool TryPass()  // pass validation, override in Reversi game
+    {
+        return false;
+    }
+
 
     // =========================================================
     // Persistence Support
@@ -322,8 +338,6 @@ public abstract class Game
             currentPlayerNumber == 1 ? p1 : p2;
     }
     // Provides read-only access to executed commands
-    // for persistence.
-
     public IReadOnlyList<MoveCommand> GetMoveHistory()
     {
         return history.GetUndoHistory();
@@ -334,7 +348,16 @@ public abstract class Game
     {
         history.Clear();
     }
+     // Allows GameStore to replay a saved PASS.
+    public virtual void ReplayPass(Player player)
+    {
+        throw new NotSupportedException("PASS is not supported in this game.");
+    }
 
+
+    // =========================================================
+    // TestRunner Support
+    // =========================================================
     public bool TryApplyMove(char piece, int row, int col) // shared logic with testrunner
     {
         if (row < 1 || row > board.Size || col < 1 || col > board.Size)
