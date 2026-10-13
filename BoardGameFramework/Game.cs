@@ -211,7 +211,7 @@ public abstract class Game
                     {
                         if (TryPass())
                         {
-                            validMove = true;
+                            turnCompleted = true;
                         }
                         else
                         {
@@ -299,10 +299,6 @@ public abstract class Game
     // Family-specific winner evaluation.
     public abstract GameResult CheckForWinner(int r, int c);
   
-    public abstract bool CheckForWinner(
-        int r,
-        int c
-    );
     public virtual bool TryPass()  // pass validation, override in Reversi game
     {
         return false;
