@@ -39,7 +39,8 @@ public class TestRunner
                     continue;
                 }
 
-                if (game.CheckForWinner(row, col)) { gameOver = true; break; }
+                GameResult result = game.CheckForWinner(row, col);
+                if (result != GameResult.InProgress) { gameOver = true; break; }
                 game.AdvanceTurn();
             }
             catch (InvalidCommandFormatException ex)

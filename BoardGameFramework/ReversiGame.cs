@@ -15,11 +15,6 @@ public class ReversiGame : Game
         : base(config, board, p1, p2)
     {
     }
-    
-    /*public ReversiGame(GameConfig config) : base(config, new Board(8))
-    {
-        ReversiRules.SetUpInitialBoard(board); //add for initial board
-    }*/
 
     protected override bool ValidatePieceType(char c)
     {
@@ -49,13 +44,9 @@ public class ReversiGame : Game
         return false;
     }
 
-
-
-    public override bool CheckForWinner(int r, int c)
+    public override GameResult CheckForWinner(int r, int c)
     {
-        // check just for test
-        // throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
-        return false;
+        throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
     }
 
     protected override string GetRulesText()
@@ -95,7 +86,6 @@ public class ReversiGame : Game
     }
 
 }
-
 
 public class AntiReversi : ReversiGame
 {

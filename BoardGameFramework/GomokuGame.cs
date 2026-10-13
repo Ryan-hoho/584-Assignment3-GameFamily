@@ -28,8 +28,9 @@ public class GomokuGame : Game
         }
     }
 
-    public override bool CheckForWinner(int r, int c)
+    public override GameResult CheckForWinner(int r, int c)
     {
+        // Check if player 1 wins
         (int dr, int dc)[] directions = {(1,0), (0,1), (1,1), (1,-1)};
         if (board.GetCellInfo(r,c) == Piece.ordinary[0] || board.GetCellInfo(r,c) == Piece.gomokuHeavy[0])
         {
@@ -70,10 +71,10 @@ public class GomokuGame : Game
                 }
                 if (point == 5 || point > 5)
                 {
-                    return true;
+                    return GameResult.Player1Wins;
                 }
             }
-            return false;
+            return GameResult.InProgress;
         }
         else if (board.GetCellInfo(r,c) == Piece.ordinary[1] || board.GetCellInfo(r,c) == Piece.gomokuHeavy[1])
         {
@@ -114,14 +115,14 @@ public class GomokuGame : Game
                 }
                 if (point == 5 || point > 5)
                 {
-                    return true;
+                    return GameResult.Player2Wins;
                 }
             }
-            return false;
+            return GameResult.InProgress;
         }
         else
         {
-            return false;
+            return GameResult.InProgress;
         }
     }
 
@@ -135,10 +136,7 @@ public class GomokuGame : Game
             "MOVE FORMAT\n" +
             "O5:5        Place an ordinary stone";
     }
-
-
 }
-
 
 public class GomokuPlus : GomokuGame
 {

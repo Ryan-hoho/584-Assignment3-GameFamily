@@ -20,12 +20,6 @@ public class Board
         }
     }
 
-    public void GetBoard()
-    {
-        DisplayBoard(board);
-    }
-
-    
     // Print a provided board view.
     // This can be used for visibility strategies such as GomokuFog.
     public void DisplayBoard(char[,] boardToDisplay)
@@ -48,7 +42,7 @@ public class Board
         for (int i = 0; i < Size; i++)
         {
             WriteLine("   " + row_div);
-            if (i >= 9) // Two digits row have 1 less space
+            if (i >= 9) // Two digits rows have 1 less space
                 Write(i + 1 + " " + col_div);
             else  
                 Write(i + 1 + "  " + col_div);
@@ -77,6 +71,4 @@ public class Board
     {
         return board[r-1,c-1];
     }
-
-
 }

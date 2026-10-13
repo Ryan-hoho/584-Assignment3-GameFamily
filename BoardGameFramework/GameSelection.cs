@@ -45,64 +45,6 @@ public class GameSelection
         }
 
         return GameFactory.CreateGame(config);
-
-        /*
-        // =========================================
-        // Variant Menu
-        // =========================================
-        int variant;
-        if (selectedFamily == GameFamily.Gomoku)
-        {
-            variant = GetGomokuVariant();
-        }
-        else
-        {
-            variant = GetReversiVariant();
-        }
-        // =========================================
-        // Mode Menu
-        // =========================================
-
-            int mode = GetGameMode();
-
-            // Human vs Human
-            if ((GameMode)(mode - 1) == GameMode.HumanVsHuman)
-            {
-                GameConfig config = new GameConfig();
-                config.GameFamily = selectedFamily;
-                config.GameMode = GameMode.HumanVsHuman;
-                if (selectedFamily == GameFamily.Gomoku)
-                {
-                    config.GomokuVariant =(GomokuVariant)(variant - 1);
-                }
-                else
-                {
-                    config.ReversiVariant =(ReversiVariant)(variant - 1);
-                }
-                return GameFactory.CreateGame(config);
-            }
-
-            // =========================================
-            // Computer Type Menu
-            // =========================================
-
-                int ai = GetComputerType();
-
-                GameConfig config = new GameConfig();
-                config.GameFamily = selectedFamily;
-                config.GameMode = GameMode.HumanVsComputer;
-                config.ComputerType =(ComputerType)(ai - 1);
-
-                if (selectedFamily == GameFamily.Gomoku)
-                {
-                    config.GomokuVariant =(GomokuVariant)(variant - 1);
-                }
-                else
-                {
-                    config.ReversiVariant =(ReversiVariant)(variant - 1);
-                }
-                return GameFactory.CreateGame(config);
-            */
     }
         
     static int PromptForInput(string message, int optionCount, int minOption = 1)

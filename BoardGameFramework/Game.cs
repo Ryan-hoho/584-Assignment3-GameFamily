@@ -1,5 +1,13 @@
 using static System.Console;
 
+public enum GameResult
+{
+    InProgress, 
+    Player1Wins,
+    Player2Wins,
+    Draw
+}
+
 public abstract class Game
 {
     // Properties 
@@ -9,12 +17,10 @@ public abstract class Game
     private IGameObserver observer;  //move board presentation to ConsoleView. maybe need to rename .cs
     protected CommandHistory history;
 
-    
     public int turnCount { get; private set; }
     public Board board { get; private set; }
     public Player p1 { get; private set; }
     public Player p2 { get; private set; }
-    
     public Player currentPlayer { get; private set; }
 
     // Constructor 
@@ -40,22 +46,20 @@ public abstract class Game
         char piece;
         int rowVal = 0;
         int colVal = 0;
-        bool hasWinner = false;
+        bool gameEnded = false;
         
         // Presentation is delegated to the observer.
         observer.OnGameStarted(this);
         observer.OnBoardChanged(this);
 
-        while(hasWinner == false)
+        // Repeatedly prompting for move if game hasn't ended
+        while(gameEnded == false)
         {
             // Display the current turn.
             observer.OnTurnChanged(this);
-            bool validMove = false;
-            
-            // =================================================
-            // Current Player Action
-            // =================================================
-            while (validMove == false)
+
+            bool turnCompleted = false;
+            while (turnCompleted == false)
             {
                 // Prompt for move from player
                 string move = currentPlayer.GetMove(board);
@@ -207,7 +211,7 @@ public abstract class Game
                     {
                         if (TryPass())
                         {
-                            validMove = true;
+                            turnCompleted = true;
                         }
                         else
                         {
@@ -231,7 +235,7 @@ public abstract class Game
                         // Shared board-boundary validation.
                         if (TryApplyMove(piece, rowVal, colVal))
                         {
-                            validMove = true;  
+                            turnCompleted = true;  
                         }  
                         continue;
                     }
@@ -242,25 +246,31 @@ public abstract class Game
                 }
             }
 
-            // Winner Check
-            if (CheckForWinner( rowVal, colVal))
-            {
-                int winnerNumber = currentPlayer == p1 ? 1 : 2;
-                
-                // Display the final board from the winning player's perspective.
-                observer.OnBoardChanged(this);
-                observer.OnGameOver(this,winnerNumber);
-                hasWinner = true;
-            }
-            // Turn Switching
-            else
+            // Winner Check Logic
+            GameResult result = CheckForWinner(rowVal, colVal);
+
+            // If game hasn't ended, advance to the next turn
+            if (result == GameResult.InProgress)
             {
                 AdvanceTurn();
-                observer.OnBoardChanged(this);
             }
+
+            // Display updated board or final board
+            observer.OnBoardChanged(this);
+
+            // Announce result 
+            if (result == GameResult.Player1Wins || result == GameResult.Player2Wins)
+            {
+                int winnerNumber = result == GameResult.Player1Wins ? 1 : 2;
+                observer.OnGameOver(this, winnerNumber);
+            }
+            else if (result == GameResult.Draw)
+            {
+                observer.OnMessage("Game over. It's a draw.");
+            }
+            gameEnded = result != GameResult.InProgress;
         }
         return null;
-
     }
 
     // =========================================================
@@ -272,37 +282,23 @@ public abstract class Game
     // Each game family decides which piece types are valid.
     protected abstract bool ValidatePieceType(char c);
     
-    // Default move validation.Subclasses can override this for family-specific rules.
-    protected virtual bool ValidateMove(
-        char c,
-        int row,
-        int col)
+    // Default move validation. Subclasses can override this for family-specific rules.
+    protected virtual bool ValidateMove(char c, int row, int col)
     {
         if (board.GetCellInfo(row, col) == ' ')
         {
             return true;
         }
-
-        observer.OnMessage(
-            "Invalid move. " +
-            "Cannot play move on an occupied cell."
-        );
+        observer.OnMessage("Invalid move. Cannot play move on an occupied cell.");
         return false;
     }
 
     // Family-specific move execution.
-    protected abstract void PlayMove(
-        Player player,
-        char piece,
-        int row,
-        int col
-    );
+    protected abstract void PlayMove(Player player, char piece, int row, int col);
 
     // Family-specific winner evaluation.
-    public abstract bool CheckForWinner(
-        int r,
-        int c
-    );
+    public abstract GameResult CheckForWinner(int r, int c);
+  
     public virtual bool TryPass()  // pass validation, override in Reversi game
     {
         return false;
@@ -342,6 +338,7 @@ public abstract class Game
     {
         return history.GetUndoHistory();
     }
+
     // Allows GameStore to rebuild history during load.
     public void ClearHistory()
     {
