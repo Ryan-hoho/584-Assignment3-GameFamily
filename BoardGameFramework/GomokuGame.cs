@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using static System.Console;
 
 public class GomokuGame : Game
