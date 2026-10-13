@@ -43,7 +43,7 @@ public class GomokuFactory : IGameFactory
         }
         else
         {
-            throw new NotImplementedException("GomokuSmartStrategy is not yet implemented.");
+            return new GomokuSmartStrategy();
         }
     }
     
