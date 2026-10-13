@@ -72,6 +72,8 @@ public class CommandParser
 
 
         string command = input.Trim();
+        const string moveFormatHint =
+            "Examples: O3:2 (Gomoku), H3:2 / E3:2 (GomokuPlus), P3:2 (Reversi).";
 
         // -------------------------------------------------
         // 2. Utility Commands
@@ -107,11 +109,8 @@ public class CommandParser
         // -------------------------------------------------
         if (command.Length < 4)
         {
-            throw new InvalidCommandFormatException(
-                $"Invalid command format: '{input}'. Example: O3:2"
-            );
+            throw new InvalidCommandFormatException($"Invalid command format: '{input}'. {moveFormatHint}");
         }
-
 
         char pieceCode =
             char.ToUpper(command[0]);
@@ -125,9 +124,7 @@ public class CommandParser
 
         if (coordinates.Length != 2)
         {
-            throw new InvalidCommandFormatException(
-                $"Invalid command format: '{input}'. Example: O3:2"
-            );
+            throw new InvalidCommandFormatException($"Invalid command format: '{input}'.  {moveFormatHint}");
         }
 
         if (!int.TryParse(

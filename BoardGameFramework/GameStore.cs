@@ -338,7 +338,28 @@ public class GameStore
         foreach (string moveText in data.MoveHistory)
         {
             ParsedCommand parsed = parser.Parse(moveText);
+            // PASS
+            if (parsed.Type == CommandType.Pass)
+            {
+                try
+                {
+                    game.ReplayPass(replayPlayer); // 只會執行 PlayPass()，不一定會驗證 PASS 是否合法
+                    // 讓 Save / Load 正確重播 PASS 指令
 
+                }
+                catch (Exception ex)
+                {
+                    throw new SaveFileDamagedException(
+                        $"Unable to replay move: {moveText}. {ex.Message}"
+                    );
+                }
+                replayPlayer =
+                    replayPlayer == game.p1 ? game.p2 : game.p1;
+                continue;
+
+            }
+            
+            // Normal Move
             if (parsed.Type != CommandType.Move)
             {
                 throw new SaveFileDamagedException($"Invalid move in save file: {moveText}");
@@ -357,8 +378,7 @@ public class GameStore
 
             try
             {
-                // PlayMove creates the correct MoveCommand
-                // and adds it to CommandHistory.
+                // PlayMove creates the correct MoveCommand and adds it to CommandHistory.
                 game.ReplayMove(
                     replayPlayer,
                     piece,

@@ -192,7 +192,11 @@ public class GameSelection
 
         if (saveFiles.Length == 0)
         {
-            throw new FileNotFoundException("No saved games were found.");
+            WriteLine();
+            WriteLine("No saved games found.");
+            WriteLine("Returning to the previous menu...");
+            WriteLine();
+            return null;
         }
 
         WriteLine("-----------------------");
