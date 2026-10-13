@@ -14,14 +14,26 @@ public class TestRunner
             try
             {
                 ParsedCommand cmd = parser.Parse(text);
-                if (cmd.Type != CommandType.Move)
+                int row =0, col =0;
+                bool applied;
+
+                if (cmd.Type == CommandType.Pass)
                 {
-                    WriteLine($"Skipped (not a move): {text}");
-                    continue;
+                    applied = game.TryPass();   //game.cs need to add method
                 }
 
-                int row = cmd.Row!.Value, col = cmd.Column!.Value;
-                if (!game.TryApplyMove(cmd.PieceCode!.Value, row, col))
+                else if (cmd.Type == CommandType.Move)
+                {
+                    row = cmd.Row!.Value;
+                    col = cmd.Column!.Value;
+                    applied = game.TryApplyMove(cmd.PieceCode!.Value, row, col);
+                }
+                else
+                {
+                    WriteLine($"Skipped (not a move): {text}");
+                    continue;   
+                }
+                if (!applied)
                 {
                     WriteLine($"Illegal move skipped: {text}");
                     continue;

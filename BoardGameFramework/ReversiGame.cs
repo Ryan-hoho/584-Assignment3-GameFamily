@@ -71,6 +71,28 @@ public class ReversiGame : Game
             "P3:4        Place a disk\n" +
             "PASS        Pass when no legal move exists";
     }
+    public override bool TryPass()
+    {
+        char symbol = currentPlayer == p1 ? 'X' : 'O';
+        if (ReversiRules.HasLegalMove(board, symbol))
+        {   
+            return false;
+        }
+        history.Execute(new PassCommand());
+        return true;
+    }
+    public override void ReplayPass(Player player)
+    {
+        // Determine which player's PASS is being replayed.
+        char symbol = player == p1 ? 'X' : 'O';
+        if (ReversiRules.HasLegalMove(board, symbol))
+        {
+            throw new InvalidOperationException(
+                "Cannot replay an illegal PASS."
+            );
+        }
+        history.Execute(new PassCommand());
+    }
 
 }
 
