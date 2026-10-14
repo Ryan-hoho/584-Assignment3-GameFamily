@@ -6,14 +6,13 @@
 
 public abstract class MoveCommand
 {
-    // 執行這一步棋。具體怎麼執行，由 GomokuMoveCommand 或ReversiMoveCommand 自己決定。
+    // Execute the move. The implementation is handled by the 3 types of command
     public abstract void Execute();
 
-    // Command 必須自己知道如何恢復 Execute 前的狀態。
+    // Each Command must know how to restore the state before Execute().
     public abstract void Undo();
 
-    // Redo 通常就是重新執行同一個 Command。
-    // 如果未來某種 move 有特殊 redo 行為，subclass 仍然可以 override。
+    // Redo typically re-executes the same Command.
     public virtual void Redo()
     {
         Execute();

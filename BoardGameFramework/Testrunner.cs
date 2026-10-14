@@ -6,7 +6,8 @@ public class TestRunner
 
     public void Run(Game game, string script)
     {
-        bool gameOver = false;
+        // bool gameOver = false;
+        GameResult result = GameResult.InProgress;
 
         foreach (string raw in script.Split(','))
         {
@@ -19,7 +20,7 @@ public class TestRunner
 
                 if (cmd.Type == CommandType.Pass)
                 {
-                    applied = game.TryPass();   //game.cs need to add method
+                    applied = game.TryPass();
                 }
 
                 else if (cmd.Type == CommandType.Move)
@@ -39,8 +40,8 @@ public class TestRunner
                     continue;
                 }
 
-                GameResult result = game.CheckForWinner(row, col);
-                if (result != GameResult.InProgress) { gameOver = true; break; }
+                result = game.CheckForWinner(row, col);
+                if (result != GameResult.InProgress) { break; }
                 game.AdvanceTurn();
             }
             catch (InvalidCommandFormatException ex)
@@ -50,17 +51,29 @@ public class TestRunner
         }
 
         game.RenderBoard();
-        Report(game, gameOver);
+        Report(game, result);
     }
 
-    private void Report(Game game, bool gameOver)
+    private void Report(Game game, GameResult result)
     {
         int x = Count(game.board, 'X'), o = Count(game.board, 'O');
         WriteLine($"Active player: {(game.currentPlayer == game.p1 ? "Player 1" : "Player 2")}");
         WriteLine($"Stones: X={x}, O={o}");
-        WriteLine(gameOver
-            ? $"Winner: {(game.currentPlayer == game.p1 ? "Player 1" : "Player 2")}"
-            : "Status: in progress");
+        switch (result)
+        {
+            case GameResult.Player1Wins:
+                WriteLine("Winner: Player 1");
+                break;
+            case GameResult.Player2Wins:
+                WriteLine("Winner: Player 2");
+                break;
+            case GameResult.Draw:
+                WriteLine("Result: Draw");
+                break;
+            default:
+                WriteLine("Status: in progress");
+                break;
+        }
     }
 
     private int Count(Board b, char s)
