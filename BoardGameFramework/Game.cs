@@ -14,7 +14,6 @@ public abstract class Game
     private GameConfig config;
     private CommandParser parser;
     private GameStore gameStore;
-    private IGameObserver observer;  //move board presentation to ConsoleView.
     protected CommandHistory history;
 
     public int turnCount { get; private set; }
@@ -22,6 +21,29 @@ public abstract class Game
     public Player p1 { get; private set; }
     public Player p2 { get; private set; }
     public Player currentPlayer { get; private set; }
+    // Observers (e.g. ConsoleView) subscribe to be told about game events.
+    private readonly List<IGameObserver> observers = new List<IGameObserver>();
+    public void Subscribe(IGameObserver observer)
+    {
+        if (!observers.Contains(observer))
+        { observers.Add(observer);}
+    }
+
+    public void Unsubscribe(IGameObserver observer)
+    { observers.Remove(observer);}
+
+    // Tells every subscriber. Iterates over a copy so an observer may unsubscribe itself while being notified.
+    private void Notify(Action<IGameObserver> action)
+    {
+        foreach (IGameObserver o in observers.ToList())
+        { action(o);}
+    }
+
+    // For subclasses that need to show a message through the observers.
+    protected void NotifyMessage(string message)
+    {
+        Notify(o => o.OnMessage(message));
+    }
 
     // Constructor 
     public Game(GameConfig config, Board board, Player p1, Player p2)
@@ -36,8 +58,7 @@ public abstract class Game
         parser = new CommandParser();
         history = new CommandHistory();
         gameStore = new GameStore(parser);
-        // ConsoleView is the current presentation observer.
-        observer = new ConsoleView();
+
     }
 
     public Game? Start()
@@ -49,21 +70,20 @@ public abstract class Game
         bool gameEnded = false;
         
         // Presentation is delegated to the observer.
-        observer.OnGameStarted(this);
-        observer.OnBoardChanged(this);
+        Notify(o => o.OnGameStarted(this));
+        Notify(o => o.OnBoardChanged(this));
 
         // Repeatedly prompting for move if game hasn't ended
         while(gameEnded == false)
         {
             // Display the current turn.
-            observer.OnTurnChanged(this);
+            Notify(o => o.OnTurnChanged(this));
 
             bool turnCompleted = false;
             while (turnCompleted == false)
             {
                 // Prompt for move from player
                 string move = currentPlayer.GetMove(board);
-
                 try
                 {
                     ParsedCommand parsed = parser.Parse(move);
@@ -71,7 +91,7 @@ public abstract class Game
                     // Help
                     if (parsed.Type == CommandType.Help)
                     {
-                        observer.OnHelpRequested(GetRulesText());
+                        Notify(o => o.OnHelpRequested(GetRulesText()));
                         continue;
                     }
 
@@ -81,18 +101,18 @@ public abstract class Game
                         bool undoSuccess = history.Undo();
                         if (!undoSuccess)
                         {
-                            observer.OnMessage(
+                            Notify(o => o.OnMessage(
                                 "Nothing to undo. " +
                                 "A full turn (both players) " +
                                 "is required before undo is available."
-                            );
+                            ));
                         }
                         else
                         {
                             turnCount--;
-                            observer.OnMessage("Undo successful.");
-                            observer.OnBoardChanged(this);
-                            observer.OnTurnChanged(this);
+                            Notify(o => o.OnMessage("Undo successful."));
+                            Notify(o => o.OnBoardChanged(this));
+                            Notify(o => o.OnTurnChanged(this));
                         }
                         continue;
                     }
@@ -107,15 +127,15 @@ public abstract class Game
                             history.Redo();
                         if (!redoSuccess)
                         {
-                            observer.OnMessage("Nothing to redo.");
+                            Notify(o => o.OnMessage("Nothing to redo."));
                         }
 
                         else
                         {
                             turnCount++;
-                            observer.OnMessage("Redo successful.");
-                            observer.OnBoardChanged(this);
-                            observer.OnTurnChanged(this);
+                            Notify(o => o.OnMessage("Redo successful."));
+                            Notify(o => o.OnBoardChanged(this));
+                            Notify(o => o.OnTurnChanged(this));
                         }
                         continue;
                     }
@@ -135,19 +155,19 @@ public abstract class Game
                                 ReadLine()?.Trim() ?? "";
                             if (string.IsNullOrWhiteSpace(saveName))
                             {
-                                observer.OnMessage(
+                                Notify(o => o.OnMessage(
                                     "Save cancelled. " +
                                     "Save name cannot be empty."
-                                );
+                                ));
                                 continue;
                             }
 
                             if (!gameStore.IsValidSaveName(saveName))
                             {
-                                observer.OnMessage(
+                                Notify(o => o.OnMessage(
                                     "Invalid save name. " +
                                     "Use only letters, numbers, '-' or '_'."
-                                );
+                                ));
                                 continue;
                             }
 
@@ -160,12 +180,12 @@ public abstract class Game
                                 saveData,
                                 saveName);
 
-                            observer.OnMessage($"Game saved successfully as '{saveName}'.");
-                            observer.OnMessage($"Save folder: {gameStore.GetSaveFolder()}");
+                            Notify(o => o.OnMessage($"Game saved successfully as '{saveName}'."));
+                            Notify(o => o.OnMessage($"Save folder: {gameStore.GetSaveFolder()}"));
                         }
                         catch (Exception ex)
                         {
-                            observer.OnMessage($"Unable to save game: {ex.Message}");
+                            Notify(o => o.OnMessage($"Unable to save game: {ex.Message}"));
                         }
                         continue;
                     }
@@ -183,7 +203,7 @@ public abstract class Game
                             {
                                 continue;   // 使用者按 0 返回，留在目前的遊戲
                             }
-                            observer.OnMessage("Game loaded successfully.");
+                            Notify(o => o.OnMessage("Game loaded successfully."));
 
                             // Return the loaded game to Program.
                             // Program will start its game lifecycle.
@@ -191,7 +211,7 @@ public abstract class Game
                         }
                         catch (Exception ex)
                         {
-                            observer.OnMessage($"Unable to load game: {ex.Message}");
+                            Notify(o => o.OnMessage($"Unable to load game: {ex.Message}"));
                             continue;
                         }
                     }
@@ -201,7 +221,7 @@ public abstract class Game
                     // -----------------------------------------
                     if (parsed.Type == CommandType.Quit)
                     {
-                        observer.OnMessage("Game ended.");
+                        Notify(o => o.OnMessage("Game ended."));
                         return null;
                     }
                     // -----------------------------------------
@@ -215,10 +235,10 @@ public abstract class Game
                         }
                         else
                         {
-                            observer.OnMessage(
+                            Notify(o => o.OnMessage(
                                 this is ReversiGame
                                     ? "PASS is not allowed. Legal moves are available."
-                                    : "PASS is only available in Reversi.");
+                                    : "PASS is only available in Reversi."));
                         }
                         continue;
                     }
@@ -242,7 +262,7 @@ public abstract class Game
                 }
                 catch (InvalidCommandFormatException ex)
                 {
-                    observer.OnMessage(ex.Message);
+                    Notify(o => o.OnMessage(ex.Message));
                 }
             }
 
@@ -256,11 +276,11 @@ public abstract class Game
             }
             // Announce result
             gameEnded = result != GameResult.InProgress;    // Update game state
-            observer.OnBoardChanged(this);                  // Notify observer of the updated board
+            Notify(o => o.OnBoardChanged(this));                  // Notify observer of the updated board
 
             if (gameEnded)
             {
-                observer.OnGameOver(this, result);
+                Notify(o => o.OnGameOver(this, result));
             }
         }
         return null;
@@ -282,7 +302,7 @@ public abstract class Game
         {
             return true;
         }
-        observer.OnMessage("Invalid move. Cannot play move on an occupied cell.");
+        Notify(o => o.OnMessage("Invalid move. Cannot play move on an occupied cell."));
         return false;
     }
 
@@ -351,7 +371,7 @@ public abstract class Game
     {
         if (row < 1 || row > board.Size || col < 1 || col > board.Size)
         {
-            observer.OnMessage("Invalid move. Coordinates are off-grid.");
+            Notify(o => o.OnMessage("Invalid move. Coordinates are off-grid."));
             return false;
         }
         if (!ValidatePieceType(piece) || !ValidateMove(piece, row, col))
@@ -377,7 +397,7 @@ public abstract class Game
 
     public void RenderBoard()
     {
-        observer.OnBoardChanged(this);
+        Notify(o => o.OnBoardChanged(this));
     }
 
     public virtual IVisibilityStrategy GetVisibilityStrategy()
