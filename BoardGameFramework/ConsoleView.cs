@@ -6,7 +6,7 @@ public interface IGameObserver
     void OnTurnChanged(Game game);
     void OnBoardChanged(Game game);
     void OnMessage(string message);
-    void OnGameOver(Game game, int winnerNumber);
+    void OnGameOver(Game game, GameResult result);
     void OnHelpRequested(string rulesText);
 }
 
@@ -19,8 +19,7 @@ public class ConsoleView : IGameObserver
         WriteLine("========================================");
         WriteLine("              GAME START");
         WriteLine("========================================");
-        // WriteLine("Type 'help' to view commands and rules.");有介紹的功能嗎？
-        // WriteLine();
+
     }
     public void OnTurnChanged(Game game)
     {
@@ -52,13 +51,27 @@ public class ConsoleView : IGameObserver
         WriteLine(message);
     }
 
-    public void OnGameOver(Game game, int winnerNumber)
+    public void OnGameOver(Game game, GameResult result)
     {
         WriteLine();
         WriteLine("========================================");
         WriteLine("               GAME OVER");
         WriteLine("========================================");
-        WriteLine($"Player {winnerNumber} wins!");
+        switch (result)
+        {
+            case GameResult.Player1Wins:
+                WriteLine("Player 1 wins!");
+                break;
+            case GameResult.Player2Wins:
+                WriteLine("Player 2 wins!");
+                break;
+            case GameResult.Draw:
+                WriteLine("It's a draw!");
+                break;
+            default:
+                WriteLine("Game is still in progress.");
+                break;
+        }
         WriteLine("========================================");
     }
 

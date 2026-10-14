@@ -14,7 +14,7 @@ public abstract class Game
     private GameConfig config;
     private CommandParser parser;
     private GameStore gameStore;
-    private IGameObserver observer;  //move board presentation to ConsoleView. maybe need to rename .cs
+    private IGameObserver observer;  //move board presentation to ConsoleView.
     protected CommandHistory history;
 
     public int turnCount { get; private set; }
@@ -254,21 +254,14 @@ public abstract class Game
             {
                 AdvanceTurn();
             }
+            // Announce result
+            gameEnded = result != GameResult.InProgress;    // Update game state
+            observer.OnBoardChanged(this);                  // Notify observer of the updated board
 
-            // Display updated board or final board
-            observer.OnBoardChanged(this);
-
-            // Announce result 
-            if (result == GameResult.Player1Wins || result == GameResult.Player2Wins)
+            if (gameEnded)
             {
-                int winnerNumber = result == GameResult.Player1Wins ? 1 : 2;
-                observer.OnGameOver(this, winnerNumber);
+                observer.OnGameOver(this, result);
             }
-            else if (result == GameResult.Draw)
-            {
-                observer.OnMessage("Game over. It's a draw.");
-            }
-            gameEnded = result != GameResult.InProgress;
         }
         return null;
     }

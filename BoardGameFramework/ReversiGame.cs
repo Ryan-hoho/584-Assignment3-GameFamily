@@ -4,7 +4,6 @@ public class ReversiGame : Game
 {
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
-        // PASS 情境要特殊處理（不產生 MoveCommand，或由 parser 在更早階段攔截）
         char symbol = (player == p1) ? 'X' : 'O';
         MoveCommand command = new ReversiMoveCommand(board, symbol, row, col);
         history.Execute(command);
