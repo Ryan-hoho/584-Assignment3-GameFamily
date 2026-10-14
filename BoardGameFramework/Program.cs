@@ -22,6 +22,7 @@
             while (game != null)
             {
                 Game? next = game.Start();
+                game.Unsubscribe(view);  // added: the finished game drops the view
                 // A loaded game is a new object, so subscribe the view again.
                 if (next != null && next != game)
                 {
