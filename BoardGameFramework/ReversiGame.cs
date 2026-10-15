@@ -2,6 +2,7 @@ using static System.Console;
 
 public class ReversiGame : Game
 {
+    private readonly IReversiWinStrategy winStrategy;
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
         char symbol = (player == p1) ? 'X' : 'O';
@@ -9,10 +10,22 @@ public class ReversiGame : Game
         history.Execute(command);
     }
 
+    //By default: Standard Reversi --> DiskMajority
     public ReversiGame(
-        GameConfig config, Board board, Player p1, Player p2) 
+        GameConfig config, Board board, Player p1, Player p2)
+        : this(config, board, p1, p2, new DiskMajority())
+    {
+    }
+    // Allows derived Reversi variants to provide their own win strategy.: AntiReversi --> DiskMinority / CornerReversi --> CornerDominance
+    protected ReversiGame(
+        GameConfig config,
+        Board board,
+        Player p1,
+        Player p2,
+        IReversiWinStrategy winStrategy)
         : base(config, board, p1, p2)
     {
+        this.winStrategy = winStrategy;
     }
 
     protected override bool ValidatePieceType(char c)
@@ -43,9 +56,18 @@ public class ReversiGame : Game
         return false;
     }
 
+    // Result Mapping
     public override GameResult CheckForWinner(int r, int c)
     {
-        throw new NotImplementedException("Reversi CheckForWinner is not yet implemented");
+        ReversiResult result = winStrategy.Evaluate(board);
+
+        return result switch
+        {
+            ReversiResult.XWins => GameResult.Player1Wins,
+            ReversiResult.OWins => GameResult.Player2Wins,
+            ReversiResult.Draw => GameResult.Draw,
+            _ => GameResult.InProgress
+        };
     }
 
     protected override string GetRulesText()
@@ -89,8 +111,8 @@ public class ReversiGame : Game
 public class AntiReversi : ReversiGame
 {
     public AntiReversi(
-        GameConfig config, Board board, Player p1, Player p2) 
-        : base(config, board, p1, p2)
+        GameConfig config, Board board, Player p1, Player p2)
+        : base(config, board, p1, p2, new DiskMinority())
     {
     }
 
@@ -112,8 +134,8 @@ public class AntiReversi : ReversiGame
 public class CornerReversi : ReversiGame
 {
     public CornerReversi(
-        GameConfig config, Board board, Player p1, Player p2) 
-        : base(config, board, p1, p2)
+        GameConfig config, Board board, Player p1, Player p2)
+        : base(config, board, p1, p2, new CornerDominance())
     {
     }
     
