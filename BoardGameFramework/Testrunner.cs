@@ -56,9 +56,26 @@ public class TestRunner
 
     private void Report(Game game, GameResult result)
     {
-        int x = Count(game.board, 'X'), o = Count(game.board, 'O');
+        int x = Count(game.board, Piece.ordinary[0]);
+        int o = Count(game.board, Piece.ordinary[1]);
+
         WriteLine($"Active player: {(game.currentPlayer == game.p1 ? "Player 1" : "Player 2")}");
-        WriteLine($"Stones: X={x}, O={o}");
+        
+        if (game is GomokuPlus)
+        {
+            int heavyx = Count(game.board, Piece.gomokuHeavy[0]);
+            int heavyo = Count(game.board, Piece.gomokuHeavy[1]);
+            WriteLine($"Stones: Player 1 : "+
+                    $"{Piece.ordinary[0]}={x}, {Piece.gomokuHeavy[0]}={heavyx}, " + 
+                    $"Player 2 : "+
+                    $"{Piece.ordinary[1]}={o}, {Piece.gomokuHeavy[1]}={heavyo}");
+        }
+        else
+        {
+            WriteLine($"Stones: Player 1 : " + $"{Piece.ordinary[0]}={x}, " + 
+                    $"Player 2 : " + $"{Piece.ordinary[1]}={o}");
+        }
+
         switch (result)
         {
             case GameResult.Player1Wins:
