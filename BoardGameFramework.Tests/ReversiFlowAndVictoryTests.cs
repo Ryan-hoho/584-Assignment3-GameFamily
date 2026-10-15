@@ -104,6 +104,79 @@ public class ReversiFlowAndVictoryTests
         Assert.Equal(ReversiResult.XWins, result);
     }
 
+    [Fact]
+    public void CheckForWinner_StandardReversi_UsesDiskMajority()
+    {
+        Board board = CreateSixtyXFourOBoard();
+
+        GameConfig config = new GameConfig
+        {
+            GameFamily = GameFamily.Reversi,
+            ReversiVariant = ReversiVariant.Standard,
+            GameMode = GameMode.HumanVsHuman
+        };
+
+        Player p1 = new HumanPlayer();
+        Player p2 = new HumanPlayer();
+
+        ReversiGame game =
+            new ReversiGame(config, board, p1, p2);
+
+        GameResult result = game.CheckForWinner(0, 0);
+
+        Assert.Equal(GameResult.Player1Wins, result);
+    }
+
+    [Fact]
+    public void CheckForWinner_AntiReversi_UsesDiskMinority()
+    {
+        Board board = CreateSixtyXFourOBoard();
+
+        GameConfig config = new GameConfig
+        {
+            GameFamily = GameFamily.Reversi,
+            ReversiVariant = ReversiVariant.Anti,
+            GameMode = GameMode.HumanVsHuman
+        };
+
+        Player p1 = new HumanPlayer();
+        Player p2 = new HumanPlayer();
+
+        AntiReversi game =
+            new AntiReversi(config, board, p1, p2);
+
+        GameResult result = game.CheckForWinner(0, 0);
+
+        Assert.Equal(GameResult.Player2Wins, result);
+    }
+
+    [Fact]
+    public void CheckForWinner_CornerReversi_UsesCornerDominance()
+    {
+        Board board = new Board(8);
+
+        board.PlayMove('X', 1, 1);
+        board.PlayMove('X', 1, 8);
+        board.PlayMove('X', 8, 1);
+
+        GameConfig config = new GameConfig
+        {
+            GameFamily = GameFamily.Reversi,
+            ReversiVariant = ReversiVariant.Corner,
+            GameMode = GameMode.HumanVsHuman
+        };
+
+        Player p1 = new HumanPlayer();
+        Player p2 = new HumanPlayer();
+
+        CornerReversi game =
+            new CornerReversi(config, board, p1, p2);
+
+        GameResult result = game.CheckForWinner(0, 0);
+
+        Assert.Equal(GameResult.Player1Wins, result);
+    }
+
     private Board CreateSixtyXFourOBoard()
     {
         Board board = new Board(8);
