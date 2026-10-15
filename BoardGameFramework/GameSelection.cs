@@ -15,10 +15,8 @@ public class GameSelection
             if (choice == 3)
             {
                 Game? loaded = LoadGame();
-                if (loaded == null) continue;  // LoadGame 內按 0 回主選單
+                if (loaded == null) continue;  
                 return loaded;
-
-                // TBD: Do we want the program to reprompt Menu Selection when there is no game to load? 
             }
             break;
         }
