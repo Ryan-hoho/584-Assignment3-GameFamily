@@ -93,9 +93,21 @@ public class ReversiFactory : IGameFactory
         {
             return new ReversiRandomStrategy();
         }
-        else
+        else if (config.ReversiVariant == ReversiVariant.Standard)
         {
             return new ReversiGreedyStrategy();
+        }
+        else if (config.ReversiVariant == ReversiVariant.Anti)
+        {
+            return new AntiReversiStrategy();
+        }
+        else if (config.ReversiVariant == ReversiVariant.Corner)
+        {
+            return new CornerGreedyStrategy();
+        }
+        else
+        {
+            throw new ArgumentException("Invalid Reversi variant.");
         }
     }
 
