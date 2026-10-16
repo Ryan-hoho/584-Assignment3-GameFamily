@@ -34,10 +34,23 @@ public class ConsoleView : IGameObserver
     {
         IVisibilityStrategy visibility =
             game.GetVisibilityStrategy();
-        char symbol =
-            game.currentPlayer == game.p1
+        // char symbol =
+            // game.currentPlayer == game.p1
+            //     ? Piece.ordinary[0]
+            //     : Piece.ordinary[1];
+        char symbol;    
+            if (game is GomokuFog && game.p2 is ComputerPlayer)
+        {
+            symbol = Piece.ordinary[0];
+        }
+        else
+        {
+            symbol = game.currentPlayer == game.p1
                 ? Piece.ordinary[0]
                 : Piece.ordinary[1];
+        }
+
+
         char[,] visibleBoard =
             visibility.GetVisibleBoard(
                 game.board,
