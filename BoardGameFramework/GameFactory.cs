@@ -60,7 +60,7 @@ public class GomokuFactory : IGameFactory
         else
         {
             IMoveStrategy strategy = CreateMoveStrategy(config);
-            p2 = new ComputerPlayer(strategy, 'O');
+            p2 = new ComputerPlayer(strategy, Piece.ordinary[1]);
         }
         
         if (config.GomokuVariant == GomokuVariant.Standard)
@@ -124,7 +124,7 @@ public class ReversiFactory : IGameFactory
         else
         {
             IMoveStrategy strategy = CreateMoveStrategy(config);
-            p2 = new ComputerPlayer(strategy, 'O');
+            p2 = new ComputerPlayer(strategy, Piece.ordinary[1]);
         }
         
         if (config.ReversiVariant == ReversiVariant.Standard)

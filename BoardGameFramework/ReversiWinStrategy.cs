@@ -22,8 +22,8 @@ public class DiskMajority : IReversiWinStrategy
             return ReversiResult.InProgress;
         }
 
-        int xCount = ReversiRules.CountDisks(board, 'X');
-        int oCount = ReversiRules.CountDisks(board, 'O');
+        int xCount = ReversiRules.CountDisks(board, Piece.ordinary[0]);
+        int oCount = ReversiRules.CountDisks(board, Piece.ordinary[1]);
 
         if (xCount > oCount)
         {
@@ -50,8 +50,8 @@ public class DiskMinority : IReversiWinStrategy
             return ReversiResult.InProgress;
         }
 
-        int xCount = ReversiRules.CountDisks(board, 'X');
-        int oCount = ReversiRules.CountDisks(board, 'O');
+        int xCount = ReversiRules.CountDisks(board, Piece.ordinary[0]);
+        int oCount = ReversiRules.CountDisks(board, Piece.ordinary[1]);
 
         // Anti-Reversi: the player with fewer disks wins.
         if (xCount < oCount)
@@ -73,8 +73,8 @@ public class CornerDominance : IReversiWinStrategy
 {
     public ReversiResult Evaluate(Board board)
     {
-        int xCorners = CountCorners(board, 'X');
-        int oCorners = CountCorners(board, 'O');
+        int xCorners = CountCorners(board, Piece.ordinary[0]);
+        int oCorners = CountCorners(board, Piece.ordinary[1]);
 
         // Sudden-death condition: capturing 3 out of 4 corners wins immediately.
         if (xCorners >= 3)
@@ -94,8 +94,8 @@ public class CornerDominance : IReversiWinStrategy
         }
 
         // Fallback: normal majority count.
-        int xCount = ReversiRules.CountDisks(board, 'X');
-        int oCount = ReversiRules.CountDisks(board, 'O');
+        int xCount = ReversiRules.CountDisks(board, Piece.ordinary[0]);
+        int oCount = ReversiRules.CountDisks(board, Piece.ordinary[1]);
 
         if (xCount > oCount)
         {

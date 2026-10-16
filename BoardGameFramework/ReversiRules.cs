@@ -2,10 +2,10 @@ public static class ReversiRules
 {
     public static void SetUpInitialBoard(Board board)
     {
-        board.PlayMove('O', 4, 4);
-        board.PlayMove('X', 4, 5);
-        board.PlayMove('X', 5, 4);
-        board.PlayMove('O', 5, 5);
+        board.PlayMove(Piece.ordinary[1], 4, 4);
+        board.PlayMove(Piece.ordinary[0], 4, 5);
+        board.PlayMove(Piece.ordinary[0], 5, 4);
+        board.PlayMove(Piece.ordinary[1], 5, 5);
     }
     public static bool PlaceDisk(
     Board board,
@@ -80,8 +80,8 @@ public static class ReversiRules
     // A full board is one possible case.
     public static bool NoMovesForEitherPlayer(Board board)
     {
-        bool xCanMove = HasLegalMove(board, 'X');
-        bool oCanMove = HasLegalMove(board, 'O');
+        bool xCanMove = HasLegalMove(board, Piece.ordinary[0]);
+        bool oCanMove = HasLegalMove(board, Piece.ordinary[1]);
 
         return !xCanMove && !oCanMove;
     }
