@@ -46,16 +46,35 @@ public class GomokuFactory : IGameFactory
             return new GomokuSmartStrategy();
         }
     }
+
+    // GomokuPlus shares one inventory between the game and its computer player
+    private IMoveStrategy CreatePlusMoveStrategy(GameConfig config, StoneInventory inventory)
+    {
+        if (config.ComputerType == ComputerType.DumbAI)
+        {
+            return new GomokuPlusRandomStrategy(inventory);
+        }
+        else
+        {
+            return new GomokuSmartStrategy(new GomokuPlusRandomStrategy(inventory));
+        }
+    }
     
     public Game CreateGame(GameConfig config)
     {
         Board board = CreateBoard();
+        StoneInventory inventory = new StoneInventory();
         Player p1 = new HumanPlayer();
         Player p2;
 
         if (config.GameMode == GameMode.HumanVsHuman)
         {
             p2 = new HumanPlayer();
+        }
+        else if (config.GomokuVariant == GomokuVariant.Plus)
+        {
+            IMoveStrategy strategy = CreatePlusMoveStrategy(config, inventory);
+            p2 = new ComputerPlayer(strategy, 'O');
         }
         else
         {
@@ -69,7 +88,7 @@ public class GomokuFactory : IGameFactory
         }
         else if (config.GomokuVariant == GomokuVariant.Plus)
         {
-            return new GomokuPlus(config, board, p1, p2); 
+            return new GomokuPlus(config, board, p1, p2, inventory); 
         }
         else
         {

@@ -4,7 +4,15 @@ public class GomokuSmartStrategy : IMoveStrategy
     const int FIVEINAROW = 5;
     private readonly int[] ROWSTEPS = { 0, 1, 1, 1 };
     private readonly int[] COLSTEPS = { 1, 0, 1, -1 };
-    private readonly IMoveStrategy fallback = new GomokuRandomStrategy();
+    private readonly IMoveStrategy fallback;
+    public GomokuSmartStrategy()
+    {
+        fallback = new GomokuRandomStrategy();
+    }
+    public GomokuSmartStrategy(IMoveStrategy fallback)
+    {
+        this.fallback = fallback;
+    }
     public string ChooseMove(Board board, char symbol)
     {
         string move = FindFiveInARow(board, symbol);

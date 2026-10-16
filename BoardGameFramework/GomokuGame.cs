@@ -140,11 +140,12 @@ public class GomokuGame : Game
 
 public class GomokuPlus : GomokuGame
 {
-    private readonly StoneInventory inventory = new StoneInventory();
+    private readonly StoneInventory inventory;
     public GomokuPlus(
-        GameConfig config, Board board, Player p1, Player p2) 
+        GameConfig config, Board board, Player p1, Player p2, StoneInventory inventory) 
         : base(config, board, p1, p2)
     {
+        this.inventory = inventory;
     }
     
     protected override bool ValidatePieceType(char c)
