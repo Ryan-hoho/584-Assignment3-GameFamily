@@ -108,7 +108,7 @@ public class ReversiMoveCommand : MoveCommand
 
         // Restore all disks that were flipped by this move.
         char opponentSymbol =
-            (symbol == 'X') ? 'O' : 'X';
+            (symbol == Piece.ordinary[0]) ? Piece.ordinary[1] : Piece.ordinary[0];
 
         foreach ((int flipRow, int flipCol) in flippedDisks)
         {

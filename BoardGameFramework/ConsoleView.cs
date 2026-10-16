@@ -36,8 +36,8 @@ public class ConsoleView : IGameObserver
             game.GetVisibilityStrategy();
         char symbol =
             game.currentPlayer == game.p1
-                ? 'X'
-                : 'O';
+                ? Piece.ordinary[0]
+                : Piece.ordinary[1];
         char[,] visibleBoard =
             visibility.GetVisibleBoard(
                 game.board,

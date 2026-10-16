@@ -5,7 +5,7 @@ public class ReversiGame : Game
     private readonly IReversiWinStrategy winStrategy;
     protected override void PlayMove(Player player, char piece, int row, int col)
     {
-        char symbol = (player == p1) ? 'X' : 'O';
+        char symbol = (player == p1) ? Piece.ordinary[0] : Piece.ordinary[1];
         MoveCommand command = new ReversiMoveCommand(board, symbol, row, col);
         history.Execute(command);
     }
@@ -30,7 +30,7 @@ public class ReversiGame : Game
 
     protected override bool ValidatePieceType(char c)
     {
-        if (c == 'P')
+        if (Piece.reversiDisk.Contains(c))
         {
             return true;
         }
@@ -43,7 +43,7 @@ public class ReversiGame : Game
 
     protected override bool ValidateMove(char c, int row, int col)
     {
-        char symbol = (currentPlayer == p1) ? 'X' : 'O';
+        char symbol = (currentPlayer == p1) ? Piece.ordinary[0] : Piece.ordinary[1];
         List<(int row, int col)> legalMoves =
             ReversiRules.FindLegalMoves(board, symbol);
         if (legalMoves.Contains((row, col)))
@@ -85,7 +85,7 @@ public class ReversiGame : Game
     }
     public override bool TryPass()
     {
-        char symbol = currentPlayer == p1 ? 'X' : 'O';
+        char symbol = currentPlayer == p1 ? Piece.ordinary[0] : Piece.ordinary[1];
         if (ReversiRules.HasLegalMove(board, symbol))
         {   
             return false;
@@ -96,7 +96,7 @@ public class ReversiGame : Game
     public override void ReplayPass(Player player)
     {
         // Determine which player's PASS is being replayed.
-        char symbol = player == p1 ? 'X' : 'O';
+        char symbol = player == p1 ? Piece.ordinary[0] : Piece.ordinary[1];
         if (ReversiRules.HasLegalMove(board, symbol))
         {
             throw new InvalidOperationException(

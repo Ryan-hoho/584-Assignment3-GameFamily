@@ -17,7 +17,7 @@ public class GomokuGame : Game
 
     protected override bool ValidatePieceType(char c)
     {
-        if (c == 'O')
+        if (c == Piece.gomokuStone[0])
         {
             return true;
         }
@@ -149,7 +149,7 @@ public class GomokuPlus : GomokuGame
     
     protected override bool ValidatePieceType(char c)
     {
-        if (c == 'O' || c == 'H' || c == 'E')
+        if (Piece.gomokuStone.Contains(c))
         {
             return true;
         }
