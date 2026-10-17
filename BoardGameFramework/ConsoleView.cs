@@ -29,6 +29,16 @@ public class ConsoleView : IGameObserver
         WriteLine("----------------------------------------");
         WriteLine($"Turn {game.turnCount} | Player {playerNumber}");
         WriteLine("----------------------------------------");
+        if (game is ReversiGame)
+        {
+            char symbol = game.currentPlayer == game.p1
+                ? Piece.ordinary[0]
+                : Piece.ordinary[1];
+            if (!ReversiRules.HasLegalMove(game.board, symbol))
+            {
+                Console.WriteLine("No legal moves available. Enter 'pass' to skip your turn.");
+            }
+        }
     }
     public void OnBoardChanged(Game game)
     {
