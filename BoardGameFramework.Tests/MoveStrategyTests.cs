@@ -111,6 +111,46 @@ public class MoveStrategyTests
         Assert.Equal(before, Snapshot(board));
     }
 
+    [Fact]
+    public void GomokuPlusRandom_SpecialStonesLeft_OffersOrdinaryHeavyAndEraserMoves()
+    {
+        // Only valid moves for O: O3:3, H3:3 (empty cell) and E7:7 (opponent's ordinary stone).
+        // The opponent's Heavy stone at 8:8 must never be offered as an Eraser target.
+        Board board = CreateFullGomokuBoard('O');
+        board.RemovePiece(3, 3);
+        board.PlayMove('X', 7, 7);
+        board.PlayMove('@', 8, 8);
+        GomokuPlusRandomStrategy strategy = new GomokuPlusRandomStrategy(new StoneInventory());
+
+        List<string> moves = new List<string>();
+        for (int i = 0; i < 200; i++)
+        {
+            moves.Add(strategy.ChooseMove(board, 'O'));
+        }
+
+        Assert.Contains("O3:3", moves);
+        Assert.Contains("H3:3", moves);
+        Assert.Contains("E7:7", moves);
+        Assert.DoesNotContain("E8:8", moves);
+    }
+
+    [Fact]
+    public void GomokuPlusRandom_NoSpecialStonesLeft_OnlyOffersOrdinaryMove()
+    {
+        Board board = CreateFullGomokuBoard('O');
+        board.RemovePiece(3, 3);
+        board.PlayMove('X', 7, 7);
+        StoneInventory inventory = new StoneInventory();
+        inventory.UseHeavy(1);
+        inventory.UseHeavy(1);
+        inventory.UseEraser(1);
+        inventory.UseEraser(1);
+
+        string move = new GomokuPlusRandomStrategy(inventory).ChooseMove(board, 'O');
+
+        Assert.Equal("O3:3", move);
+    }
+
     // ---------- Reversi ----------
 
     [Fact]
@@ -220,12 +260,17 @@ public class MoveStrategyTests
 
     private Board CreateFullGomokuBoard()
     {
+        return CreateFullGomokuBoard('X');
+    }
+
+    private Board CreateFullGomokuBoard(char symbol)
+    {
         Board board = new Board(10);
         for (int row = 1; row <= 10; row++)
         {
             for (int col = 1; col <= 10; col++)
             {
-                board.PlayMove('X', row, col);
+                board.PlayMove(symbol, row, col);
             }
         }
         return board;
